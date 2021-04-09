@@ -15,23 +15,14 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+package com.ealva.musicinfoapp.ui.main
 
-plugins {
-  kotlin("jvm") version "1.3.72"
-  `kotlin-dsl`
-}
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
-repositories {
-  jcenter()
-}
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-  jvmTarget = "1.8"
-}
-
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-  jvmTarget = "1.8"
+class MainActivity : AppCompatActivity() {
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    println("onCreate")
+  }
 }
