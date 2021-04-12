@@ -16,5 +16,6 @@
   -->
 
 <resources>
-    <string name="app_name">eAlva MusicInfo</string>
+  <string name="app_name">eAlva MusicInfo</string>
+  <string name="ResultStatusCode">Result HTTP status code=%d</string>
 </resources>
