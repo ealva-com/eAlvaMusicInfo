@@ -26,15 +26,15 @@ import com.ealva.ealvabrainz.brainz.data.ReleaseMbid
 import com.ealva.ealvabrainz.brainz.data.TrackMbid
 import com.ealva.ealvabrainz.common.AlbumTitle
 import com.ealva.ealvabrainz.common.ArtistName
-import com.ealva.ealvabrainz.common.TrackTitle
+import com.ealva.ealvabrainz.common.Limit
+import com.ealva.ealvabrainz.common.RecordingTitle
 import com.ealva.musicinfo.BuildConfig
 import com.ealva.musicinfo.lastfm.LastFm
-import com.ealva.musicinfo.service.common.ContextStringFetcher
 import com.ealva.musicinfo.service.common.MusicInfoMessage
-import com.ealva.musicinfo.service.common.StringFetcher
 import com.ealva.musicinfo.test.shared.MainCoroutineRule
 import com.ealva.musicinfo.test.shared.runBlockingTest
 import com.ealva.musicinfo.test.shared.toHaveAny
+import com.ealva.musicinfo.test.shared.toNotBeEmpty
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import com.nhaarman.expect.expect
@@ -58,12 +58,10 @@ public class LastFmSmokeTest {
 
   private lateinit var appCtx: Context
   private lateinit var lastFmService: LastFmService
-  private lateinit var fetcher: StringFetcher
 
   @Before
   public fun setup() {
     appCtx = ApplicationProvider.getApplicationContext()
-    fetcher = ContextStringFetcher(appCtx)
     lastFmService = LastFmService(
       BuildConfig.MUSICINFO_APP_NAME,
       BuildConfig.MUSICINFO_APP_VERSION,
@@ -85,7 +83,7 @@ public class LastFmSmokeTest {
         expect(album.tracks.trackList).toHaveAny { track -> track.name == "Taxman" }
         expect(album.tracks.trackList).toHaveAny { it.name == "Here, There and Everywhere" }
       }
-      .onFailure { fail("LastFm call failed") { it.asString(fetcher) } }
+      .onFailure { fail("LastFm call failed") { it } }
   }
 
   @Test
@@ -98,7 +96,7 @@ public class LastFmSmokeTest {
         expect(album.tracks.trackList).toHaveAny { it.name == "Aqualung" }
         expect(album.tracks.trackList).toHaveAny { it.name == "Locomotive Breath" }
       }
-      .onFailure { fail("LastFm call failed") { it.asString(fetcher) } }
+      .onFailure { fail("LastFm call failed") { it } }
   }
 
   @Test
@@ -110,7 +108,7 @@ public class LastFmSmokeTest {
         expect(artist.mbid).toBe("83d91898-7763-47d7-b03b-b92132375c47")
         expect(artist.bio.content).toContain("Roger Waters")
       }
-      .onFailure { fail("LastFm call failed") { it.asString(fetcher) } }
+      .onFailure { fail("LastFm call failed") { it } }
   }
 
   @Test
@@ -123,14 +121,35 @@ public class LastFmSmokeTest {
         expect(artist.mbid).toBe(mbid.value)
         expect(artist.bio.content).toContain("Art Alexakis")
       }
-      .onFailure { fail("LastFm call failed") { it.asString(fetcher) } }
+      .onFailure { fail("LastFm call failed") { it } }
+  }
+
+  @Test
+  public fun testGetSimilarArtistsCher(): Unit = lastFm {
+    getSimilarArtists(ArtistName("Cher"))
+      .onSuccess { similarArtists ->
+        expect(similarArtists.artists).toNotBeEmpty { "No similar artists to Cher returned" }
+        expect(similarArtists.artists).toHaveSize(100)
+      }
+      .onFailure { fail("LastFm call failed") { it } }
+  }
+
+  @Test
+  public fun testGetSimilarArtistsCherMbid(): Unit = lastFm {
+    val limit = 13
+    getSimilarArtists(ArtistMbid("bfcc6d75-a6a5-4bc6-8282-47aec8531818"), Limit(limit))
+      .onSuccess { similarArtists ->
+        expect(similarArtists.artists).toNotBeEmpty { "No similar artists to Cher returned" }
+        expect(similarArtists.artists).toHaveSize(limit)
+      }
+      .onFailure { fail("LastFm call failed") { it } }
   }
 
   @Test
   public fun testGetTrackInfoBlueOysterCultDontFearTheReaper(): Unit = lastFm {
     getTrackInfo(
       ArtistName("Blue Oyster Cult"),
-      TrackTitle("Don't Fear the Reaper"),
+      RecordingTitle("Don't Fear the Reaper"),
       LastFm.AutoCorrect.Yes
     )
       .onSuccess { track ->
@@ -138,7 +157,7 @@ public class LastFmSmokeTest {
         expect(track.name).toBe("(Don't Fear) The Reaper")
         expect(track.artist.name).toBe("Blue Öyster Cult")
       }
-      .onFailure { fail("LastFm call failed") { it.asString(fetcher) } }
+      .onFailure { fail("LastFm call failed") { it } }
   }
 
   @Test
@@ -149,7 +168,7 @@ public class LastFmSmokeTest {
         expect(track.name).toBe("(Don't Fear) The Reaper")
         expect(track.artist.name).toBe("Blue Öyster Cult")
       }
-      .onFailure { fail("LastFm call failed") { it.asString(fetcher) } }
+      .onFailure { fail("LastFm call failed") { it } }
   }
 
   @Test
@@ -161,6 +180,27 @@ public class LastFmSmokeTest {
           expect(lastFmMsg.statusCode).toBe(6) // because mbid was malformed
         }
       }
+  }
+
+  @Test
+  public fun testSimilarTracksCherBelieve(): Unit = lastFm {
+    getSimilarTracks(ArtistName("Cher"), RecordingTitle("Believe"))
+      .onSuccess { similarTracks ->
+        expect(similarTracks.tracks).toNotBeEmpty { "No Cher Believe similar tracks returned" }
+        expect(similarTracks.tracks).toHaveSize(100)
+      }
+      .onFailure { fail("LastFm call failed") { it } }
+  }
+
+  @Test
+  public fun testSimilarTrackMbidCherBelieve(): Unit = lastFm {
+    val limit = 13
+    getSimilarTracks(TrackMbid("125c117d-a7a1-4dc4-a609-67f31eb11613"), Limit(limit))
+      .onSuccess { similarTracks ->
+        expect(similarTracks.tracks).toNotBeEmpty { "No Cher Believe MBID similar tracks returned" }
+        expect(similarTracks.tracks).toHaveSize(13)
+      }
+      .onFailure { fail("LastFm call failed") { it } }
   }
 
   private fun lastFm(block: suspend LastFmService.() -> Unit) = coroutineRule.runBlockingTest {

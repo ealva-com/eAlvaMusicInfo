@@ -17,23 +17,26 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.ealvalog.e
-import com.ealva.ealvalog.invoke
-import com.ealva.musicinfo.log.libLogger
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.JsonReader
+import com.ealva.musicinfo.lastfm.data.ArtistAttr.Companion.NullArtistAttr
+import com.ealva.musicinfo.lastfm.data.SimilarArtists.Companion.NullSimilarArtists
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-private val LOG by libLogger(StringJsonAdapter::class)
+@JsonClass(generateAdapter = true)
+public class SimilarArtists(
+  @field:Json(name = "artist")
+  public val artists: List<SimilarArtist> = listOf(),
+  @field:Json(name = "@attr")
+  public val attr: ArtistAttr = NullArtistAttr
+) {
+  override fun toString(): String = toJson()
 
-internal class StringJsonAdapter {
-  @FromJson
-  fun fromJson(reader: JsonReader): String {
-    return when (val token = reader.peek()) {
-      JsonReader.Token.NULL -> "".also { reader.nextNull<String>() }
-      JsonReader.Token.STRING -> reader.nextString()
-      else -> "".also {
-        LOG.e { it("Unrecognized token ${token.name}, expecting null or string", token.name) }
-      }
-    }
+  public companion object {
+    public val NullSimilarArtists: SimilarArtists = SimilarArtists()
+    public val fallbackMapping: Pair<String, Any> =
+      SimilarArtists::class.java.name to NullSimilarArtists
   }
 }
+
+public inline val SimilarArtists.isNullObject: Boolean
+  get() = this === NullSimilarArtists

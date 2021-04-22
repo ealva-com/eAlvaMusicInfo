@@ -17,23 +17,23 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.musicinfo.lastfm.data.AlbumStatus.Companion.NullAlbumStatus
+import com.ealva.musicinfo.lastfm.data.AlbumReply.Companion.NullAlbumReply
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-public class AlbumStatus(
+public class AlbumReply(
   @field:Json(name = "album") public override val entity: Album = Album.NullAlbum,
   public override val error: Int = 0,
   public override val message: String = ""
-) : LastFmStatus<Album> {
+) : LastFmReply<Album> {
   override fun toString(): String = toJson()
 
   public companion object {
-    public val NullAlbumStatus: AlbumStatus = AlbumStatus()
-    public val fallbackMapping: Pair<String, Any> = AlbumStatus::class.java.name to NullAlbumStatus
+    public val NullAlbumReply: AlbumReply = AlbumReply()
+    public val fallbackMapping: Pair<String, Any> = AlbumReply::class.java.name to NullAlbumReply
   }
 }
 
-public inline val AlbumStatus.isNullObject: Boolean
-  get() = this === NullAlbumStatus
+public inline val AlbumReply.isNullObject: Boolean
+  get() = this === NullAlbumReply

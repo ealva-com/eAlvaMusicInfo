@@ -17,8 +17,23 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-public interface LastFmStatus<T> {
-  public val entity: T
-  public val error: Int
-  public val message: String
+import com.ealva.musicinfo.lastfm.data.SimilarTracks.Companion.NullSimilarTracks
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
+public class SimilarTracks(
+  @Json(name = "track") public val tracks: List<SimilarTrack> = listOf(),
+  @Json(name = "@attr") public val artistAttr: ArtistAttr = ArtistAttr.NullArtistAttr,
+) {
+  override fun toString(): String = toJson()
+
+  public companion object {
+    public val NullSimilarTracks: SimilarTracks = SimilarTracks()
+    public val fallbackMapping: Pair<String, Any> =
+      SimilarTracks::class.java.name to NullSimilarTracks
+  }
 }
+
+public inline val SimilarTracks.isNullObject: Boolean
+  get() = this === NullSimilarTracks

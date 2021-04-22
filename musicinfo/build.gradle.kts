@@ -29,6 +29,8 @@ val musicInfoAppName: String = localProperties.getProperty("MUSICINFO_APP_NAME",
 val musicInfoAppVersion: String = localProperties.getProperty("MUSICINFO_APP_VERSION", "\"\"")
 val musicInfoEmail: String = localProperties.getProperty("MUSICINFO_CONTACT_EMAIL", "\"\"")
 val lastFmApiKey: String = localProperties.getProperty("LASTFM_API_KEY", "\"\"")
+val spotifyClientId: String = localProperties.getProperty("SPOTIFY_CLIENT_ID", "\"\"")
+val spotifyClientSecret: String = localProperties.getProperty("SPOTIFY_CLIENT_SECRET", "\"\"")
 
 android {
   compileSdkVersion(Sdk.COMPILE_SDK_VERSION)
@@ -64,7 +66,8 @@ android {
       "-Xinline-classes",
       "-Xopt-in=kotlin.RequiresOptIn",
       "-Xexplicit-api=warning",
-      "-Xuse-14-inline-classes-mangling-scheme"
+      "-Xuse-14-inline-classes-mangling-scheme",
+      "-Xskip-prerelease-check"
     )
   }
 
@@ -80,6 +83,8 @@ android {
       buildConfigField("String", "MUSICINFO_APP_VERSION", musicInfoAppVersion)
       buildConfigField("String", "MUSICINFO_CONTACT_EMAIL", musicInfoEmail)
       buildConfigField("String", "LASTFM_API_KEY", lastFmApiKey)
+      buildConfigField("String", "SPOTIFY_CLIENT_ID", spotifyClientId)
+      buildConfigField("String", "SPOTIFY_CLIENT_SECRET", spotifyClientSecret)
       isTestCoverageEnabled = false
     }
 
@@ -125,12 +130,14 @@ dependencies {
   implementation(SupportLibs.ANDROIDX_APPCOMPAT)
   implementation(SupportLibs.ANDROIDX_CORE_KTX)
   implementation(SupportLibs.ANDROIDX_STARTUP)
+
   implementation(ThirdParty.EALVABRAINZ)
   implementation(ThirdParty.EALVABRAINZ_SERVICE)
   implementation(ThirdParty.EALVALOG)
   implementation(ThirdParty.EALVALOG_CORE)
   implementation(ThirdParty.COROUTINE_CORE)
   implementation(ThirdParty.COROUTINE_ANDROID)
+  implementation(ThirdParty.SPOTIFY_API)
 
   implementation(ThirdParty.RETROFIT)
   implementation(ThirdParty.MOSHI)

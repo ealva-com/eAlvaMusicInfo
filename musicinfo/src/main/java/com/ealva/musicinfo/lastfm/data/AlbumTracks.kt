@@ -17,20 +17,21 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.musicinfo.lastfm.data.Attr.Companion.NullAttr
+import com.ealva.musicinfo.lastfm.data.AlbumTracks.Companion.NullAlbumTracks
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-public class Attr(
-  public val rank: String = ""
+public class AlbumTracks(
+  @field:Json(name = "track") public val trackList: List<AlbumTrack> = emptyList()
 ) {
   override fun toString(): String = toJson()
 
   public companion object {
-    public val NullAttr: Attr = Attr()
-    public val fallbackMapping: Pair<String, Any> = Attr::class.java.name to NullAttr
+    public val NullAlbumTracks: AlbumTracks = AlbumTracks()
+    public val fallbackMapping: Pair<String, Any> = AlbumTracks::class.java.name to NullAlbumTracks
   }
 }
 
-public inline val Attr.isNullObject: Boolean
-  get() = this === NullAttr
+public inline val AlbumTracks.isNullObject: Boolean
+  get() = this === NullAlbumTracks

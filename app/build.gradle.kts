@@ -58,7 +58,9 @@ android {
     freeCompilerArgs = listOf(
       "-XXLanguage:+InlineClasses",
       "-Xinline-classes",
-      "-Xopt-in=kotlin.RequiresOptIn"
+      "-Xopt-in=kotlin.RequiresOptIn",
+      "-Xuse-14-inline-classes-mangling-scheme",
+      "-Xskip-prerelease-check"
     )
   }
 }
@@ -76,7 +78,7 @@ dependencies {
   implementation(ThirdParty.KOTLIN_RESULT)
 
   implementation("androidx.activity:activity-ktx:1.2.2")
-  implementation("androidx.fragment:fragment-ktx:1.3.2")
+  implementation("androidx.fragment:fragment-ktx:1.3.3")
   implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
   implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
   implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
@@ -85,24 +87,6 @@ dependencies {
   implementation("com.google.android.material:material:1.3.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3")
-//  implementation("com.squareup.retrofit2:retrofit:2.9.0")
-//  implementation("com.louiscad.splitties:splitties-systemservices:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-views-dsl:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-views-dsl-coordinatorlayout:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-views-dsl-constraintlayout:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-views-dsl-recyclerview:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-views-dsl-material:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-views-dsl-appcompat:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-toast:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-snackbar:3.0.0-alpha06")
-//  implementation("com.louiscad.splitties:splitties-resources:3.0.0-alpha06")
-//  implementation("me.gujun.android:span:1.7")
-//  implementation("com.mikepenz:iconics-core:5.0.1")
-//  implementation("com.mikepenz:material-design-iconic-typeface:2.2.0.6-kotlin@aar")
-//  implementation("com.github.castorflex.smoothprogressbar:library-circular:1.3.0")
-//  implementation("com.neovisionaries:nv-i18n:1.27")
-//  implementation("com.github.bumptech.glide:glide:4.11.0")
-//  implementation("com.github.bumptech.glide:okhttp3-integration:4.11.0")
 
   implementation(ThirdParty.EALVALOG)
   implementation(ThirdParty.EALVALOG_CORE)

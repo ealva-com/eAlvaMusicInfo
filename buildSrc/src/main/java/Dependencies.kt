@@ -31,8 +31,8 @@ object Versions {
   const val COROUTINES = "1.4.3"
   const val COROUTINES_TEST = "1.4.3"
   const val DESUGAR = "1.0.10"
-  const val EALVABRAINZ = "0.4.0-0"
-  const val EALVABRAINZ_SERVICE = "0.4.0-0"
+  const val EALVABRAINZ = "0.6.5-SNAPSHOT"
+  const val EALVABRAINZ_SERVICE = "0.6.5-SNAPSHOT"
   const val EALVALOG = "0.5.6-SNAPSHOT"
   const val ESPRESSO_CORE = "3.2.0"
   const val EXPECT = "1.0.1"
@@ -47,6 +47,7 @@ object Versions {
   const val OKHTTP_LOGGING = "4.9.1"
   const val RETROFIT = "2.9.0"
   const val ROBOLECTRIC = "4.5.1"
+  const val SPOTIFY_API = "3.7.0"
 }
 
 object BuildPluginsVersion {
@@ -77,7 +78,6 @@ object ThirdParty {
   const val EALVALOG = "com.ealva:ealvalog:${Versions.EALVALOG}"
   const val EALVALOG_ANDROID = "com.ealva:ealvalog-android:${Versions.EALVALOG}"
   const val EALVALOG_CORE = "com.ealva:ealvalog-core:${Versions.EALVALOG}"
-  const val FASTUTIL = "it.unimi.dsi:fastutil:${Versions.FASTUTIL}"
   const val KOIN = "org.koin:koin-core:${Versions.KOIN}"
   const val KOIN_ANDROID = "org.koin:koin-android:${Versions.KOIN}"
   const val KOTLIN_RESULT = "com.michael-bull.kotlin-result:kotlin-result:${Versions.KOTLIN_RESULT}"
@@ -87,6 +87,7 @@ object ThirdParty {
   const val OKHTTP = "com.squareup.okhttp3:okhttp:${Versions.OKHTTP}"
   const val OKHTTP_LOGGING = "com.squareup.okhttp3:logging-interceptor:${Versions.OKHTTP_LOGGING}"
   const val RETROFIT = "com.squareup.retrofit2:retrofit:${Versions.RETROFIT}"
+  const val SPOTIFY_API = "com.adamratzman:spotify-api-kotlin-core:${Versions.SPOTIFY_API}"
 }
 
 object TestingLib {

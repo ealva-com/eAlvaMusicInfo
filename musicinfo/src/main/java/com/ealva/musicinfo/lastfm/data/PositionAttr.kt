@@ -15,24 +15,24 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ealva.musicinfo
+package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.musicinfo.service.art.CompositeFinderIntegrationTest
-import com.ealva.musicinfo.service.lastfm.LastFmSmokeTest
-import com.ealva.musicinfo.service.spotify.SpotifySmokeTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
+import com.ealva.musicinfo.lastfm.data.PositionAttr.Companion.NullPositionAttr
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@ExperimentalUnsignedTypes
-@ExperimentalCoroutinesApi
-@RunWith(Suite::class)
-@Suite.SuiteClasses(
-  LastFmSmokeTest::class,
-  SpotifySmokeTest::class,
-//  BrainzArtFinderIntegrationTest::class,
-//  LastFmArtFinderIntegrationTest::class,
-//  SpotifyArtFinderIntegrationTest::class,
-  CompositeFinderIntegrationTest::class // Composite tests Brainz, LastFm, and Spotify ArtFinders
-)
-public class AndroidTestSuite
+@JsonClass(generateAdapter = true)
+public class PositionAttr(
+  @field:Json(name = "position") public val artist: String = ""
+) {
+  override fun toString(): String = toJson()
+
+  public companion object {
+    public val NullPositionAttr: PositionAttr = PositionAttr()
+    public val fallbackMapping: Pair<String, Any> =
+      PositionAttr::class.java.name to NullPositionAttr
+  }
+}
+
+public inline val PositionAttr.isNullObject: Boolean
+  get() = this === NullPositionAttr

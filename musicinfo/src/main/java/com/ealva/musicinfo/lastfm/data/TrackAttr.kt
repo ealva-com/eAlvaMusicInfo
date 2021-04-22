@@ -15,24 +15,22 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ealva.musicinfo
+package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.musicinfo.service.art.CompositeFinderIntegrationTest
-import com.ealva.musicinfo.service.lastfm.LastFmSmokeTest
-import com.ealva.musicinfo.service.spotify.SpotifySmokeTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
+import com.ealva.musicinfo.lastfm.data.TrackAttr.Companion.NullAttr
+import com.squareup.moshi.JsonClass
 
-@ExperimentalUnsignedTypes
-@ExperimentalCoroutinesApi
-@RunWith(Suite::class)
-@Suite.SuiteClasses(
-  LastFmSmokeTest::class,
-  SpotifySmokeTest::class,
-//  BrainzArtFinderIntegrationTest::class,
-//  LastFmArtFinderIntegrationTest::class,
-//  SpotifyArtFinderIntegrationTest::class,
-  CompositeFinderIntegrationTest::class // Composite tests Brainz, LastFm, and Spotify ArtFinders
-)
-public class AndroidTestSuite
+@JsonClass(generateAdapter = true)
+public class TrackAttr(
+  public val rank: String = ""
+) {
+  override fun toString(): String = toJson()
+
+  public companion object {
+    public val NullAttr: TrackAttr = TrackAttr()
+    public val fallbackMapping: Pair<String, Any> = TrackAttr::class.java.name to NullAttr
+  }
+}
+
+public inline val TrackAttr.isNullObject: Boolean
+  get() = this === NullAttr

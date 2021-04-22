@@ -17,15 +17,30 @@
 
 package com.ealva.musicinfo.lastfm.data
 
+import com.ealva.ealvabrainz.brainz.data.ArtistMbid
 import com.ealva.musicinfo.lastfm.data.SimilarArtist.Companion.NullSimilarArtist
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 public class SimilarArtist(
+  /** Name of the artist, person or group */
   public val name: String = "",
+  /**
+   * The artist mbid. Available via artist.getSimilar but not available via artist.getInfo.
+   * Ensure not empty before using
+   */
+  public val mbid: String = "",
+  /**
+   * The floating point value representing how similar the artist is to the "requested" artist, 1
+   * being the same and 0 is no similarity. Available via artist.getSimilar but not available via
+   * artist.getInfo.
+   */
+  public val match: String = "",
+  /** Link to the LastFm artist page */
   public val url: String = "",
-  @field:Json(name = "image") public val imageList: List<Image> = emptyList(),
+  /** List of images of the artist */
+  @field:Json(name = "image") public val imageList: List<Image> = emptyList()
 ) {
   override fun toString(): String = toJson()
 
@@ -38,3 +53,6 @@ public class SimilarArtist(
 
 public inline val SimilarArtist.isNullObject: Boolean
   get() = this === NullSimilarArtist
+
+public val SimilarArtist.artistMbid: ArtistMbid
+  get() = ArtistMbid(mbid)

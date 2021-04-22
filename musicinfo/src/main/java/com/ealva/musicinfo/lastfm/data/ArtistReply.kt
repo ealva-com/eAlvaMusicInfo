@@ -17,22 +17,23 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.ealvabrainz.brainz.data.FallbackOnNull
-import com.ealva.ealvabrainz.brainz.data.NullPrimitiveAdapter
-import com.squareup.moshi.Moshi
+import com.ealva.musicinfo.lastfm.data.ArtistReply.Companion.NullArtistReply
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-internal fun Moshi.Builder.addRequired(): Moshi.Builder {
-  add(FallbackOnNull.ADAPTER_FACTORY)
-  add(NullPrimitiveAdapter())
-  add(StringJsonAdapter())
-  return this
+@JsonClass(generateAdapter = true)
+public class ArtistReply(
+  @field:Json(name = "artist") public override val entity: Artist = Artist.NullArtist,
+  public override val error: Int = 0,
+  public override val message: String = ""
+) : LastFmReply<Artist> {
+  override fun toString(): String = toJson()
+
+  public companion object {
+    public val NullArtistReply: ArtistReply = ArtistReply()
+    public val fallbackMapping: Pair<String, Any> = ArtistReply::class.java.name to NullArtistReply
+  }
 }
 
-internal val theLastFmMoshi: Moshi = Moshi.Builder().addRequired().build()
-
-internal fun <T : Any> T.toJson(): String {
-  return theLastFmMoshi
-    .adapter<T>(this::class.java)
-    .indent("  ")
-    .toJson(this)
-}
+public inline val ArtistReply.isNullObject: Boolean
+  get() = this === NullArtistReply

@@ -17,35 +17,25 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.ealvabrainz.brainz.data.ReleaseMbid
-import com.ealva.musicinfo.lastfm.data.Album.Companion.NullAlbum
+import com.ealva.musicinfo.lastfm.data.SimilarArtistReply.Companion.NullSimilarArtistReply
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-public class Album(
-  public val name: String = "",
-  public val artist: String = "",
-  public val mbid: String = "",
-  public val url: String = "",
-  @field:Json(name = "image") public val imageList: List<Image> = emptyList(),
-  @field:Json(name = "listeners") public val listenerCount: String = "",
-  @field:Json(name = "playcount") public val playCount: String = "",
-  public val tracks: AlbumTracks = AlbumTracks.NullAlbumTracks,
-  public val tags: Tags = Tags.NullTags,
-  public val wiki: Wiki = Wiki.NullWiki,
-  public val attr: TrackAttr = TrackAttr.NullAttr
-) {
+public class SimilarArtistReply(
+  @field:Json(name = "similarartists") public override val entity: SimilarArtists =
+    SimilarArtists.NullSimilarArtists,
+  public override val error: Int = 0,
+  public override val message: String = ""
+) : LastFmReply<SimilarArtists> {
   override fun toString(): String = toJson()
 
   public companion object {
-    public val NullAlbum: Album = Album()
-    public val fallbackMapping: Pair<String, Any> = Album::class.java.name to NullAlbum
+    public val NullSimilarArtistReply: SimilarArtistReply = SimilarArtistReply()
+    public val fallbackMapping: Pair<String, Any> =
+      SimilarArtistReply::class.java.name to NullSimilarArtistReply
   }
 }
 
-public inline val Album.isNullObject: Boolean
-  get() = this === NullAlbum
-
-public val Album.releaseMbid: ReleaseMbid
-  get() = ReleaseMbid(mbid)
+public inline val SimilarArtistReply.isNullObject: Boolean
+  get() = this === NullSimilarArtistReply

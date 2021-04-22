@@ -22,14 +22,17 @@ import com.ealva.ealvabrainz.brainz.data.ReleaseMbid
 import com.ealva.ealvabrainz.brainz.data.TrackMbid
 import com.ealva.ealvabrainz.common.AlbumTitle
 import com.ealva.ealvabrainz.common.ArtistName
-import com.ealva.ealvabrainz.common.TrackTitle
+import com.ealva.ealvabrainz.common.Limit
+import com.ealva.ealvabrainz.common.RecordingTitle
 import com.ealva.musicinfo.BuildConfig
 import com.ealva.musicinfo.lastfm.LastFm
 import com.ealva.musicinfo.lastfm.data.Album
 import com.ealva.musicinfo.lastfm.data.Artist
-import com.ealva.musicinfo.lastfm.data.LastFmStatus
+import com.ealva.musicinfo.lastfm.data.LastFmReply
+import com.ealva.musicinfo.lastfm.data.SimilarArtists
+import com.ealva.musicinfo.lastfm.data.SimilarTracks
 import com.ealva.musicinfo.lastfm.data.Track
-import com.ealva.musicinfo.lastfm.data.theMoshi
+import com.ealva.musicinfo.lastfm.data.theLastFmMoshi
 import com.ealva.musicinfo.service.common.MusicInfoMessage
 import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoExceptionMessage
 import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoLastFmMessage
@@ -73,7 +76,7 @@ private const val LASTFM_BASE_URL = "https://ws.audioscrobbler.com/"
  * functionality such as rate limiting, splitting status into entity or error message, exception
  * handling, etc.
  *
- * Most functions return a [LastFmResult] which is a Result<T, MusicInfoMessage>. If the result is
+ * Functions return a [LastFmResult] which is a Result<T, MusicInfoMessage>. If the result is
  * [Ok] it will contain an instance of T. If an error occurs an [Err] is returned which contains a
  * MusicInfoMessage.
  *
@@ -147,15 +150,26 @@ public interface LastFmService {
    */
   public suspend fun getArtistInfo(mbid: ArtistMbid): LastFmResult<Artist>
 
+  public suspend fun getSimilarArtists(
+    artistName: ArtistName,
+    limit: Limit? = null,
+    autoCorrect: LastFm.AutoCorrect? = null
+  ): LastFmResult<SimilarArtists>
+
+  public suspend fun getSimilarArtists(
+    mbid: ArtistMbid,
+    limit: Limit? = null,
+  ): LastFmResult<SimilarArtists>
+
   /**
-   * Get the metadata for a [Track] on Last.fm using the [artistName] and [trackTitle]. If
+   * Get the metadata for a [Track] on Last.fm using the [artistName] and [recordingTitle]. If
    * [autoCorrect] is [LastFm.AutoCorrect.Yes], any corrected name will be included in the result.
    *
    * [LastFm track.getInfo](https://www.last.fm/api/show/track.getInfo)
    */
   public suspend fun getTrackInfo(
     artistName: ArtistName,
-    trackTitle: TrackTitle,
+    recordingTitle: RecordingTitle,
     autoCorrect: LastFm.AutoCorrect? = null
   ): LastFmResult<Track>
 
@@ -165,6 +179,18 @@ public interface LastFmService {
    * [LastFm track.getInfo](https://www.last.fm/api/show/track.getInfo)
    */
   public suspend fun getTrackInfo(mbid: TrackMbid): LastFmResult<Track>
+
+  public suspend fun getSimilarTracks(
+    artistName: ArtistName,
+    recordingTitle: RecordingTitle,
+    limit: Limit? = null,
+    autoCorrect: LastFm.AutoCorrect? = null
+  ): LastFmResult<SimilarTracks>
+
+  public suspend fun getSimilarTracks(
+    mbid: TrackMbid,
+    limit: Limit? = null,
+  ): LastFmResult<SimilarTracks>
 
   public companion object {
     public operator fun invoke(
@@ -188,7 +214,7 @@ public interface LastFmService {
           )
         )
         .baseUrl(LASTFM_BASE_URL)
-        .addConverterFactory(MoshiConverterFactory.create(theMoshi))
+        .addConverterFactory(MoshiConverterFactory.create(theLastFmMoshi))
         .build()
         .create(LastFm::class.java),
       coroutineDispatcher
@@ -220,22 +246,53 @@ private class LastFmServiceImpl(
   }
 
   override suspend fun getArtistInfo(mbid: ArtistMbid): LastFmResult<Artist> = lastFm {
-    getArtistInfo(mbid.value)
+    getArtistInfo(mbid = mbid.value)
+  }
+
+  override suspend fun getSimilarArtists(
+    artistName: ArtistName,
+    limit: Limit?,
+    autoCorrect: LastFm.AutoCorrect?
+  ): LastFmResult<SimilarArtists> = lastFm {
+    getSimilarArtists(artistName.value, limit?.value, autoCorrect)
+  }
+
+  override suspend fun getSimilarArtists(
+    mbid: ArtistMbid,
+    limit: Limit?
+  ): LastFmResult<SimilarArtists> = lastFm {
+    getSimilarArtists(mbid = mbid.value, limit = limit?.value)
   }
 
   override suspend fun getTrackInfo(
     artistName: ArtistName,
-    trackTitle: TrackTitle,
+    recordingTitle: RecordingTitle,
     autoCorrect: LastFm.AutoCorrect?
   ): LastFmResult<Track> = lastFm {
-    getTrackInfo(artistName.value, trackTitle.value, autoCorrect)
+    getTrackInfo(artistName.value, recordingTitle.value, autoCorrect)
   }
 
   override suspend fun getTrackInfo(mbid: TrackMbid): LastFmResult<Track> = lastFm {
     getTrackInfo(mbid.value)
   }
 
-  private suspend fun <U, S : LastFmStatus<U>> lastFm(
+  override suspend fun getSimilarTracks(
+    artistName: ArtistName,
+    recordingTitle: RecordingTitle,
+    limit: Limit?,
+    autoCorrect: LastFm.AutoCorrect?
+  ): LastFmResult<SimilarTracks> = lastFm {
+    getSimilarTracks(artistName.value, recordingTitle.value, limit?.value, autoCorrect)
+  }
+
+  override suspend fun getSimilarTracks(
+    mbid: TrackMbid,
+    limit: Limit?
+  ): LastFmResult<SimilarTracks> = lastFm {
+    getSimilarTracks(mbid.value, limit?.value)
+  }
+
+  private suspend fun <U, S : LastFmReply<U>> lastFm(
     block: LastFmCall<S>
   ): LastFmResult<U> = withContext(dispatcher) {
     runCatching { lastFm.block() }
@@ -243,21 +300,21 @@ private class LastFmServiceImpl(
       .andThen { response ->
         if (response.isSuccessful) handleResponseBody(response) else makeErrorCodeErr(response)
       }
-      .andThen { status ->
-        if (status.error == 0) Ok(status.entity) else makeServiceErr(status)
+      .andThen { reply ->
+        if (reply.error == 0) Ok(reply.entity) else makeServiceErr(reply)
       }
   }
 
-  private fun <U, S : LastFmStatus<U>> handleResponseBody(response: Response<S>) =
+  private fun <U, S : LastFmReply<U>> handleResponseBody(response: Response<S>) =
     response.body()?.let { Ok(it) } ?: makeNullErr(response)
 
-  private fun <U, S : LastFmStatus<U>> makeErrorCodeErr(response: Response<S>) =
+  private fun <U, S : LastFmReply<U>> makeErrorCodeErr(response: Response<S>) =
     Err(MusicInfoErrorCodeMessage(response.code(), response))
 
-  private fun <U, S : LastFmStatus<U>> makeNullErr(response: Response<S>) =
+  private fun <U, S : LastFmReply<U>> makeNullErr(response: Response<S>) =
     Err(MusicInfoNullReturn(response.code()))
 
-  private fun <U, S : LastFmStatus<U>> makeServiceErr(status: S) =
+  private fun <U, S : LastFmReply<U>> makeServiceErr(status: S) =
     Err(MusicInfoLastFmMessage(status.error, status.message))
 }
 

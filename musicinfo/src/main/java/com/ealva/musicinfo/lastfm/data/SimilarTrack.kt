@@ -18,37 +18,22 @@
 package com.ealva.musicinfo.lastfm.data
 
 import com.ealva.ealvabrainz.brainz.data.TrackMbid
-import com.ealva.musicinfo.lastfm.data.Track.Companion.NullTrack
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
-/**
- * Track as returned from track.getInfo
- */
 @JsonClass(generateAdapter = true)
-public class Track(
+public class SimilarTrack(
   public val name: String = "",
+  @Json(name = "playcount") public val playCount: Int = 0,
   public val mbid: String = "",
-  public val url: String = "",
-  public val duration: String = "",
-  public val streamable: Streamable = Streamable.NullStreamable,
-  @field:Json(name = "listeners") public val listenerCount: String = "",
-  @field:Json(name = "playcount") public val playCount: String = "",
+  /** Number from 0 to 1 indicating how similar - 1 being exact match and 0 no match */
+  public val match: Double = 0.0,
+  @Json(name = "url") public val url: String = "",
+  @Json(name = "streamable") public val streamable: Streamable = Streamable.NullStreamable,
+  public val duration: Int = 0,
   public val artist: TrackArtist = TrackArtist.NullTrackArtist,
-  public val album: TrackAlbum = TrackAlbum.NullTrackAlbum,
-  @field:Json(name = "toptags") public val topTags: TopTags = TopTags.NullTopTags,
-  public val wiki: Wiki = Wiki.NullWiki
-) {
-  override fun toString(): String = toJson()
+  @Json(name = "image") public val images: List<Image> = listOf(),
+)
 
-  public companion object {
-    public val NullTrack: Track = Track()
-    public val fallbackMapping: Pair<String, Any> = Track::class.java.name to NullTrack
-  }
-}
-
-public inline val Track.isNullObject: Boolean
-  get() = this === NullTrack
-
-public val Track.trackMbid: TrackMbid
+public val SimilarTrack.trackMbid: TrackMbid
   get() = TrackMbid(mbid)

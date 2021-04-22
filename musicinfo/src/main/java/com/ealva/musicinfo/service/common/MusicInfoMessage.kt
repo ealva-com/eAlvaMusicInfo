@@ -18,49 +18,30 @@
 package com.ealva.musicinfo.service.common
 
 import com.ealva.brainzsvc.service.R
-import com.ealva.ealvalog.e
-import com.ealva.ealvalog.invoke
-import com.ealva.ealvalog.lazyLogger
-import com.ealva.musicinfo.service.net.MusicInfoRawResponse
-import com.ealva.musicinfo.service.net.toMusicInfoRawResponse
+import com.ealva.musicinfo.service.init.EalvaMusicInfo
 import retrofit2.Response
 import java.io.PrintWriter
 import java.io.StringWriter
 
-private val LOG by lazyLogger(MusicInfoMessage::class)
-
 public sealed class MusicInfoMessage {
-  public abstract fun asString(fetcher: StringFetcher): String
-
   @Suppress("MemberVisibilityCanBePrivate")
   public class MusicInfoLastFmMessage(
     public val statusCode: Int,
     public val message: String
   ) : MusicInfoMessage() {
-    override fun asString(fetcher: StringFetcher): String {
-      return "Service error:$statusCode. $message"
-    }
+    override fun toString(): String = "Service error:$statusCode. $message"
   }
 
   @Suppress("MemberVisibilityCanBePrivate")
   public sealed class MusicInfoStatusMessage(public val statusCode: Int) : MusicInfoMessage() {
-    override fun asString(fetcher: StringFetcher): String =
-      fetcher.fetch(R.string.ResultStatusCode, statusCode)
+    override fun toString(): String = EalvaMusicInfo.fetch(R.string.ResultStatusCode, statusCode)
 
-    public class MusicInfoNullReturn(statusCode: Int) : MusicInfoStatusMessage(statusCode) {
-      init {
-        LOG.e { it("Null return status code=%d", statusCode) }
-      }
-    }
+    public class MusicInfoNullReturn(statusCode: Int) : MusicInfoStatusMessage(statusCode)
 
     public class MusicInfoErrorCodeMessage(
       statusCode: Int,
       private val response: Response<*>
     ) : MusicInfoStatusMessage(statusCode) {
-      init {
-        LOG.e { it("Error code message. Status code=%d", statusCode) }
-      }
-
       @Suppress("unused")
       public val rawResponse: MusicInfoRawResponse
         get() = response.toMusicInfoRawResponse()
@@ -69,7 +50,7 @@ public sealed class MusicInfoMessage {
 
   @Suppress("MemberVisibilityCanBePrivate")
   public class MusicInfoExceptionMessage(public val ex: Throwable) : MusicInfoMessage() {
-    override fun asString(fetcher: StringFetcher): String = ex.message ?: ex.toString()
+    override fun toString(): String = ex.message ?: ex.toString()
 
     @Suppress("unused")
     public fun stackTraceToString(throwable: Throwable): String {
@@ -80,4 +61,18 @@ public sealed class MusicInfoMessage {
       }.toString()
     }
   }
+
+  public class MusicInfoErrorMessage(private val msg: String) : MusicInfoMessage() {
+    override fun toString(): String = msg
+  }
 }
+
+@Suppress("unused")
+public class MusicInfoRawResponse(
+  public val httpStatusCode: Int,
+  public val httpStatus: String,
+  public val errorBody: String
+)
+
+public fun Response<*>.toMusicInfoRawResponse(): MusicInfoRawResponse =
+  MusicInfoRawResponse(code(), message(), errorBody()?.string() ?: "null")

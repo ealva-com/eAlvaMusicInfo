@@ -17,6 +17,7 @@
 
 package com.ealva.musicinfo.lastfm.data
 
+import com.ealva.ealvabrainz.brainz.data.ArtistMbid
 import com.ealva.musicinfo.lastfm.data.TrackArtist.Companion.NullTrackArtist
 import com.squareup.moshi.JsonClass
 
@@ -36,3 +37,6 @@ public class TrackArtist(
 
 public inline val TrackArtist.isNullObject: Boolean
   get() = this === NullTrackArtist
+
+public val TrackArtist.artistMbid: ArtistMbid
+  get() = ArtistMbid(mbid)

@@ -17,38 +17,26 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.ealvabrainz.brainz.data.TrackMbid
-import com.ealva.musicinfo.lastfm.data.Track.Companion.NullTrack
+import com.ealva.musicinfo.lastfm.data.TrackAlbum.Companion.NullTrackAlbum
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
-/**
- * Track as returned from track.getInfo
- */
 @JsonClass(generateAdapter = true)
-public class Track(
-  public val name: String = "",
+public class TrackAlbum(
+  public val artist: String = "",
+  public val title: String = "",
   public val mbid: String = "",
   public val url: String = "",
-  public val duration: String = "",
-  public val streamable: Streamable = Streamable.NullStreamable,
-  @field:Json(name = "listeners") public val listenerCount: String = "",
-  @field:Json(name = "playcount") public val playCount: String = "",
-  public val artist: TrackArtist = TrackArtist.NullTrackArtist,
-  public val album: TrackAlbum = TrackAlbum.NullTrackAlbum,
-  @field:Json(name = "toptags") public val topTags: TopTags = TopTags.NullTopTags,
-  public val wiki: Wiki = Wiki.NullWiki
+  @field:Json(name = "image") public val imageList: List<Image> = emptyList(),
+  @field:Json(name = "@attr") public val positionAttr: PositionAttr = PositionAttr.NullPositionAttr
 ) {
   override fun toString(): String = toJson()
 
   public companion object {
-    public val NullTrack: Track = Track()
-    public val fallbackMapping: Pair<String, Any> = Track::class.java.name to NullTrack
+    public val NullTrackAlbum: TrackAlbum = TrackAlbum()
+    public val fallbackMapping: Pair<String, Any> = TrackAlbum::class.java.name to NullTrackAlbum
   }
 }
 
-public inline val Track.isNullObject: Boolean
-  get() = this === NullTrack
-
-public val Track.trackMbid: TrackMbid
-  get() = TrackMbid(mbid)
+public inline val TrackAlbum.isNullObject: Boolean
+  get() = this === NullTrackAlbum

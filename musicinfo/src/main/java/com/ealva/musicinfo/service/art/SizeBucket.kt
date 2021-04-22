@@ -15,24 +15,18 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ealva.musicinfo
+package com.ealva.musicinfo.service.art
 
-import com.ealva.musicinfo.service.art.CompositeFinderIntegrationTest
-import com.ealva.musicinfo.service.lastfm.LastFmSmokeTest
-import com.ealva.musicinfo.service.spotify.SpotifySmokeTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
+import com.ealva.musicinfo.R
+import com.ealva.musicinfo.service.init.EalvaMusicInfo
 
-@ExperimentalUnsignedTypes
-@ExperimentalCoroutinesApi
-@RunWith(Suite::class)
-@Suite.SuiteClasses(
-  LastFmSmokeTest::class,
-  SpotifySmokeTest::class,
-//  BrainzArtFinderIntegrationTest::class,
-//  LastFmArtFinderIntegrationTest::class,
-//  SpotifyArtFinderIntegrationTest::class,
-  CompositeFinderIntegrationTest::class // Composite tests Brainz, LastFm, and Spotify ArtFinders
-)
-public class AndroidTestSuite
+public sealed class SizeBucket(public val maybeVeryLarge: Boolean, private val stringRes: Int) {
+  public object Original : SizeBucket(true, R.string.Original)
+  public object ExtraLarge : SizeBucket(true, R.string.Extra_Large)
+  public object Large : SizeBucket(false, R.string.Large)
+  public object Medium : SizeBucket(false, R.string.Medium)
+  public object Small : SizeBucket(false, R.string.Small)
+  public object Unknown : SizeBucket(false, R.string.Unknown)
+
+  override fun toString(): String = EalvaMusicInfo.fetch(stringRes)
+}

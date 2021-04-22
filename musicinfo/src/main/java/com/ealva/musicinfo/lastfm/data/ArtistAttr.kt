@@ -15,24 +15,24 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ealva.musicinfo
+package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.musicinfo.service.art.CompositeFinderIntegrationTest
-import com.ealva.musicinfo.service.lastfm.LastFmSmokeTest
-import com.ealva.musicinfo.service.spotify.SpotifySmokeTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
+import com.ealva.musicinfo.lastfm.data.ArtistAttr.Companion.NullArtistAttr
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@ExperimentalUnsignedTypes
-@ExperimentalCoroutinesApi
-@RunWith(Suite::class)
-@Suite.SuiteClasses(
-  LastFmSmokeTest::class,
-  SpotifySmokeTest::class,
-//  BrainzArtFinderIntegrationTest::class,
-//  LastFmArtFinderIntegrationTest::class,
-//  SpotifyArtFinderIntegrationTest::class,
-  CompositeFinderIntegrationTest::class // Composite tests Brainz, LastFm, and Spotify ArtFinders
-)
-public class AndroidTestSuite
+@JsonClass(generateAdapter = true)
+public class ArtistAttr(
+  @field:Json(name = "artist") public val artist: String = ""
+) {
+  override fun toString(): String = toJson()
+
+  public companion object {
+    public val NullArtistAttr: ArtistAttr = ArtistAttr()
+    public val fallbackMapping: Pair<String, Any> =
+      ArtistAttr::class.java.name to NullArtistAttr
+  }
+}
+
+public inline val ArtistAttr.isNullObject: Boolean
+  get() = this === NullArtistAttr

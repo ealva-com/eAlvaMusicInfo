@@ -15,17 +15,10 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ealva.musicinfo.service.common
+package com.ealva.musicinfo.lastfm.data
 
-import android.content.Context
-import androidx.annotation.StringRes
-
-public fun interface StringFetcher {
-  public fun fetch(@StringRes stringRes: Int, vararg formatArgs: Any): String
-}
-
-public class ContextStringFetcher(private val context: Context) : StringFetcher {
-  override fun fetch(stringRes: Int, vararg formatArgs: Any): String {
-    return context.getString(stringRes, *formatArgs)
-  }
+public interface LastFmReply<T> {
+  public val entity: T
+  public val error: Int
+  public val message: String
 }

@@ -24,8 +24,10 @@ import com.ealva.ealvalog.Markers
 import com.ealva.ealvalog.e
 import com.ealva.ealvalog.filter.MarkerFilter
 import com.ealva.ealvalog.i
+import com.ealva.ealvalog.lazyLogger
 import com.ealva.ealvalog.w
 import com.ealva.musicinfo.BuildConfig
+import kotlin.reflect.KClass
 
 public object MusicInfoLog {
   public var logErrors: Boolean = true
@@ -48,6 +50,14 @@ public object MusicInfoLog {
   @Suppress("unused")
   public val markerFilter: MarkerFilter by lazy { MarkerFilter(marker) }
 }
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun <T : Any> libLogger(forClass: KClass<T>): Lazy<Logger> =
+  lazyLogger(forClass, MusicInfoLog.marker)
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun libLogger(name: String): Lazy<Logger> =
+  lazyLogger(name, MusicInfoLog.marker)
 
 @Suppress("FunctionName", "unused")
 internal inline fun Logger._i(

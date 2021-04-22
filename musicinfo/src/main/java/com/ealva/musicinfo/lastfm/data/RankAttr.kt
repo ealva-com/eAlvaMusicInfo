@@ -15,16 +15,24 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ealva.musicinfo.service.net
+package com.ealva.musicinfo.lastfm.data
 
-import retrofit2.Response
+import com.ealva.musicinfo.lastfm.data.RankAttr.Companion.NullRankAttr
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@Suppress("unused")
-public class MusicInfoRawResponse(
-  public val httpStatusCode: Int,
-  public val httpStatus: String,
-  public val errorBody: String
-)
+@JsonClass(generateAdapter = true)
+public class RankAttr(
+  @field:Json(name = "rank") public val artist: String = ""
+) {
+  override fun toString(): String = toJson()
 
-public fun Response<*>.toMusicInfoRawResponse(): MusicInfoRawResponse =
-  MusicInfoRawResponse(code(), message(), errorBody()?.string() ?: "null")
+  public companion object {
+    public val NullRankAttr: RankAttr = RankAttr()
+    public val fallbackMapping: Pair<String, Any> =
+      RankAttr::class.java.name to NullRankAttr
+  }
+}
+
+public inline val RankAttr.isNullObject: Boolean
+  get() = this === NullRankAttr

@@ -17,21 +17,25 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.musicinfo.lastfm.data.Tracks.Companion.NullTracks
+import com.ealva.musicinfo.lastfm.data.SimilarTrackReply.Companion.NullSimilarTrackReply
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-public class Tracks(
-  @field:Json(name = "track") public val trackList: List<Track> = emptyList()
-) {
+public class SimilarTrackReply(
+  @field:Json(name = "similartracks") public override val entity: SimilarTracks =
+    SimilarTracks.NullSimilarTracks,
+  public override val error: Int = 0,
+  public override val message: String = ""
+) : LastFmReply<SimilarTracks> {
   override fun toString(): String = toJson()
 
   public companion object {
-    public val NullTracks: Tracks = Tracks()
-    public val fallbackMapping: Pair<String, Any> = Tracks::class.java.name to NullTracks
+    public val NullSimilarTrackReply: SimilarTrackReply = SimilarTrackReply()
+    public val fallbackMapping: Pair<String, Any> =
+      SimilarTrackReply::class.java.name to NullSimilarTrackReply
   }
 }
 
-public inline val Tracks.isNullObject: Boolean
-  get() = this === NullTracks
+public inline val SimilarTrackReply.isNullObject: Boolean
+  get() = this === NullSimilarTrackReply

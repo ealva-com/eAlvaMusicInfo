@@ -15,24 +15,21 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ealva.musicinfo
+package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.musicinfo.service.art.CompositeFinderIntegrationTest
-import com.ealva.musicinfo.service.lastfm.LastFmSmokeTest
-import com.ealva.musicinfo.service.spotify.SpotifySmokeTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
+import com.nhaarman.expect.expect
+import org.junit.Test
 
-@ExperimentalUnsignedTypes
-@ExperimentalCoroutinesApi
-@RunWith(Suite::class)
-@Suite.SuiteClasses(
-  LastFmSmokeTest::class,
-  SpotifySmokeTest::class,
-//  BrainzArtFinderIntegrationTest::class,
-//  LastFmArtFinderIntegrationTest::class,
-//  SpotifyArtFinderIntegrationTest::class,
-  CompositeFinderIntegrationTest::class // Composite tests Brainz, LastFm, and Spotify ArtFinders
-)
-public class AndroidTestSuite
+public class ImageTest {
+  @Test
+  public fun testImageSizeMap() {
+    expect(Image.Size["mega"]).toBe(Image.Size.Mega)
+    expect(Image.Size["extralarge"]).toBe(Image.Size.ExtraLarge)
+    expect(Image.Size["large"]).toBe(Image.Size.Large)
+    expect(Image.Size["medium"]).toBe(Image.Size.Medium)
+    expect(Image.Size["small"]).toBe(Image.Size.Small)
+    expect(Image.Size["special"]).toBeInstanceOf<Image.Size.Unknown> { size ->
+      expect(size.toString()).toBe("special")
+    }
+  }
+}

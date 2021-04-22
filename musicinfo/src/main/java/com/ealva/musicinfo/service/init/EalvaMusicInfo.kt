@@ -19,11 +19,16 @@ package com.ealva.musicinfo.service.init
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.core.content.getSystemService
 
 @SuppressLint("StaticFieldLeak")
 public object EalvaMusicInfo {
   internal lateinit var appCtx: Context
+
+  internal fun fetch(@StringRes stringRes: Int, vararg formatArgs: Any): String {
+    return appCtx.getString(stringRes, *formatArgs)
+  }
 
   public fun init(context: Context): EalvaMusicInfo = apply {
     appCtx = context.applicationContext

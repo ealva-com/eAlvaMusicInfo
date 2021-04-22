@@ -20,10 +20,10 @@ package com.ealva.musicinfo.lastfm.data
 internal object FallbackMap {
   private val map = mapOf(
     Album.fallbackMapping,
-    AlbumStatus.fallbackMapping,
+    AlbumReply.fallbackMapping,
     Artist.fallbackMapping,
-    ArtistStatus.fallbackMapping,
-    Attr.fallbackMapping,
+    ArtistReply.fallbackMapping,
+    TrackAttr.fallbackMapping,
     Bio.fallbackMapping,
     Image.fallbackMapping,
     Link.fallbackMapping,
@@ -37,8 +37,8 @@ internal object FallbackMap {
     TopTags.fallbackMapping,
     Track.fallbackMapping,
     TrackArtist.fallbackMapping,
-    Tracks.fallbackMapping,
-    TrackStatus.fallbackMapping,
+    AlbumTracks.fallbackMapping,
+    TrackReply.fallbackMapping,
     Wiki.fallbackMapping
   )
 

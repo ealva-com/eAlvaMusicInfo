@@ -17,23 +17,29 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.musicinfo.lastfm.data.TrackStatus.Companion.NullTrackStatus
+import com.ealva.musicinfo.lastfm.data.AlbumTrack.Companion.NullAlbumTrack
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * Track as found in Album from album.getInfo
+ */
 @JsonClass(generateAdapter = true)
-public class TrackStatus(
-  @field:Json(name = "track") public override val entity: Track = Track.NullTrack,
-  public override val error: Int = 0,
-  public override val message: String = ""
-) : LastFmStatus<Track> {
+public class AlbumTrack(
+  public val name: String = "",
+  public val url: String = "",
+  public val duration: String = "",
+  @Json(name = "@attr") public val rankAttr: RankAttr = RankAttr.NullRankAttr,
+  public val streamable: Streamable = Streamable.NullStreamable,
+  public val artist: TrackArtist = TrackArtist.NullTrackArtist,
+) {
   override fun toString(): String = toJson()
 
   public companion object {
-    public val NullTrackStatus: TrackStatus = TrackStatus()
-    public val fallbackMapping: Pair<String, Any> = TrackStatus::class.java.name to NullTrackStatus
+    public val NullAlbumTrack: AlbumTrack = AlbumTrack()
+    public val fallbackMapping: Pair<String, Any> = Track::class.java.name to NullAlbumTrack
   }
 }
 
-public inline val TrackStatus.isNullObject: Boolean
-  get() = this === NullTrackStatus
+public inline val AlbumTrack.isNullObject: Boolean
+  get() = this === NullAlbumTrack

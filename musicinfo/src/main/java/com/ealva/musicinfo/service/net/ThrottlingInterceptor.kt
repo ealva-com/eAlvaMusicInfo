@@ -20,14 +20,13 @@
 package com.ealva.musicinfo.service.net
 
 import com.ealva.ealvalog.invoke
-import com.ealva.ealvalog.lazyLogger
-import com.ealva.musicinfo.log.MusicInfoLog
 import com.ealva.musicinfo.log._i
+import com.ealva.musicinfo.log.libLogger
 import engineering.clientside.throttle.Throttle
 import okhttp3.Interceptor
 import okhttp3.Response
 
-private val LOG by lazyLogger(ThrottlingInterceptor::class, MusicInfoLog.marker)
+private val LOG by libLogger(ThrottlingInterceptor::class)
 
 @Suppress("MaxLineLength")
 /**

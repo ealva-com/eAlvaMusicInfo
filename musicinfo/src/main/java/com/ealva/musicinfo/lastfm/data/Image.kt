@@ -28,6 +28,23 @@ public class Image(
 ) {
   override fun toString(): String = toJson()
 
+  public sealed class Size(private val name: String) {
+    public object Mega : Size("mega")
+    public object ExtraLarge : Size("extralarge")
+    public object Large : Size("large")
+    public object Medium : Size("medium")
+    public object Small : Size("small")
+    public class Unknown(value: String) : Size(value)
+
+    override fun toString(): String = name
+
+    public companion object {
+      public val values: Array<Size> = arrayOf(Mega, ExtraLarge, Large, Medium, Small)
+      private val nameMap: Map<String, Size> = values.associateBy { it.name }
+      public operator fun get(name: String): Size = nameMap[name] ?: Unknown(name)
+    }
+  }
+
   public companion object {
     public val NullImage: Image = Image()
     public val fallbackMapping: Pair<String, Any> = Image::class.java.name to NullImage
@@ -36,3 +53,6 @@ public class Image(
 
 public inline val Image.isNullObject: Boolean
   get() = this === NullImage
+
+public inline val Image.theSize: Image.Size
+  get() = Image.Size[size]
