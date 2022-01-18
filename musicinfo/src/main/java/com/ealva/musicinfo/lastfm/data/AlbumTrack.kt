@@ -28,10 +28,10 @@ import com.squareup.moshi.JsonClass
 public class AlbumTrack(
   public val name: String = "",
   public val url: String = "",
-  public val duration: String = "",
-  @Json(name = "@attr") public val rankAttr: RankAttr = RankAttr.NullRankAttr,
-  public val streamable: Streamable = Streamable.NullStreamable,
-  public val artist: TrackArtist = TrackArtist.NullTrackArtist,
+  public val duration: Int = 0,
+  @field:FallbackOnNull @Json(name = "@attr") public val rankAttr: RankAttr = RankAttr.NullRankAttr,
+  @field:FallbackOnNull public val streamable: Streamable = Streamable.NullStreamable,
+  @field:FallbackOnNull public val artist: TrackArtist = TrackArtist.NullTrackArtist,
 ) {
   override fun toString(): String = toJson()
 

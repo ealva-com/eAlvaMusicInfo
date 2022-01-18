@@ -47,7 +47,7 @@ import java.io.IOException;
  * <br/>
  * When Moshi encounters '"mydata": null' this adapter sees the null and returns the NullObject
  * instead
- * @see com.ealva.musicinfo.lastfm.data.FallbackMap
+ * @see com.ealva.musicinfo.lastfm.data.LastFmFallbackMap
  */
 final class FallbackOnNullJsonAdapter<T> extends JsonAdapter<T> {
   final JsonAdapter<T> delegate;

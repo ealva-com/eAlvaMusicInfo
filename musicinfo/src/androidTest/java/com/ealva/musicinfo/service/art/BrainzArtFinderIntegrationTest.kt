@@ -28,6 +28,7 @@ import com.ealva.ealvabrainz.common.AlbumTitle
 import com.ealva.ealvabrainz.common.ArtistName
 import com.ealva.ealvabrainz.common.RecordingTitle
 import com.ealva.musicinfo.BuildConfig
+import com.ealva.musicinfo.service.init.EalvaMusicInfo
 import com.ealva.musicinfo.test.shared.MainCoroutineRule
 import com.ealva.musicinfo.test.shared.runBlockingTest
 import com.ealva.musicinfo.test.shared.toNotBeEmpty
@@ -65,6 +66,8 @@ public class BrainzArtFinderIntegrationTest {
         BuildConfig.MUSICINFO_APP_NAME,
         BuildConfig.MUSICINFO_APP_VERSION,
         BuildConfig.MUSICINFO_CONTACT_EMAIL,
+        true,
+        clientForBuilder = EalvaMusicInfo.okHttpClient,
         dispatcher = coroutineRule.testDispatcher
       )
     )
@@ -75,7 +78,7 @@ public class BrainzArtFinderIntegrationTest {
 
   @Test
   public fun testBeatlesRevolverArt(): Unit = find {
-    findAlbumArt(THE_BEATLES, REVOLVER).toList().let { list ->
+    findAlbumArt(THE_BEATLES, REVOLVER,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for Beatles Revolver" }
     }
   }
@@ -83,7 +86,7 @@ public class BrainzArtFinderIntegrationTest {
   @Test
   public fun testBeatlesRubberSoulArt(): Unit = find {
     val releaseMbid = ReleaseMbid("d1092e74-6412-4bc6-a91c-bc3588b764f9")
-    findAlbumArt(THE_BEATLES, RUBBER_SOUL, releaseMbid = releaseMbid).toList().let { list ->
+    findAlbumArt(THE_BEATLES, RUBBER_SOUL, releaseMbid = releaseMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for Beatles Revolver" }
     }
   }
@@ -91,14 +94,14 @@ public class BrainzArtFinderIntegrationTest {
   @Test
   public fun testBeatlesHappinessIsMbidArt(): Unit = find {
     val trackMbid = TrackMbid("f64ec76e-d63a-4842-8877-42d061bddba5")
-    findTrackArt(THE_BEATLES, HAPPINESS_IS, trackMbid).toList().let { list ->
+    findTrackArt(THE_BEATLES, HAPPINESS_IS, trackMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles/Happiness mbid" }
     }
   }
 
   @Test
   public fun testBeatlesHappinessArt(): Unit = find {
-    findTrackArt(THE_BEATLES, HAPPINESS_IS).toList().let { list ->
+    findTrackArt(THE_BEATLES, HAPPINESS_IS,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles Happiness Is" }
     }
   }

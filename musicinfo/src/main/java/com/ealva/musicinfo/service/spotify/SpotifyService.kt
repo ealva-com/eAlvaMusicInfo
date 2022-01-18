@@ -30,7 +30,7 @@ import com.ealva.ealvabrainz.common.Offset
 import com.ealva.musicinfo.service.common.MusicInfoMessage
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapError
-import com.github.michaelbull.result.runCatching
+import com.github.michaelbull.result.coroutines.runSuspendCatching
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,6 +40,11 @@ public typealias SpotifyCall<T> = suspend SearchApi.() -> PagingObject<T>
 public typealias SpotifyResult<T> = Result<PagingObject<T>, MusicInfoMessage>
 
 public interface SpotifyService {
+  @JvmInline
+  public value class SpotifyClientId(public val value: String)
+
+  @JvmInline
+  public value class SpotifyClientSecret(public val value: String)
 
   public suspend fun searchArtist(
     limit: Limit? = null,
@@ -64,11 +69,11 @@ public interface SpotifyService {
 
   public companion object {
     public suspend fun make(
-      clientId: String,
-      clientSecret: String,
+      clientId: SpotifyClientId,
+      clientSecret: SpotifyClientSecret,
       coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
     ): SpotifyService {
-      val api: SpotifyAppApi = spotifyAppApi(clientId, clientSecret).build()
+      val api: SpotifyAppApi = spotifyAppApi(clientId.value, clientSecret.value).build()
       return SpotifyServiceImpl(api, coroutineDispatcher)
     }
   }
@@ -108,7 +113,7 @@ private class SpotifyServiceImpl(
   private suspend fun <T : Any> spotify(
     block: SpotifyCall<T>
   ): SpotifyResult<T> = withContext(dispatcher) {
-    runCatching { api.search.block() }
+    runSuspendCatching { api.search.block() }
       .mapError { ex -> MusicInfoMessage.MusicInfoExceptionMessage(ex) }
   }
 }

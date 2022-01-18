@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License along with
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
-version = MusicInfoCoordinates.LIBRARY_VERSION
+version = MusicInfoCoordinates.VERSION
 
 plugins {
   id("com.android.library")
   kotlin("android")
+  id("kotlin-parcelize")
   kotlin("kapt")
   id("org.jetbrains.dokka")
   id("com.vanniktech.maven.publish")
@@ -33,14 +34,11 @@ val spotifyClientId: String = localProperties.getProperty("SPOTIFY_CLIENT_ID", "
 val spotifyClientSecret: String = localProperties.getProperty("SPOTIFY_CLIENT_SECRET", "\"\"")
 
 android {
-  compileSdkVersion(Sdk.COMPILE_SDK_VERSION)
+  compileSdk = SdkVersion.COMPILE
 
   defaultConfig {
-    minSdkVersion(Sdk.MIN_SDK_VERSION)
-    targetSdkVersion(Sdk.TARGET_SDK_VERSION)
-
-    versionCode = MusicInfoCoordinates.LIBRARY_VERSION_CODE
-    versionName = MusicInfoCoordinates.LIBRARY_VERSION
+    minSdk = SdkVersion.MIN
+    targetSdk = SdkVersion.TARGET
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
@@ -55,22 +53,6 @@ android {
     }
   }
 
-  kotlinOptions {
-    jvmTarget = "1.8"
-    languageVersion = "1.5"
-    apiVersion = "1.5"
-    suppressWarnings = false
-    verbose = true
-    freeCompilerArgs = listOf(
-      "-XXLanguage:+InlineClasses",
-      "-Xinline-classes",
-      "-Xopt-in=kotlin.RequiresOptIn",
-      "-Xexplicit-api=warning",
-      "-Xuse-14-inline-classes-mangling-scheme",
-      "-Xskip-prerelease-check"
-    )
-  }
-
   compileOptions {
     isCoreLibraryDesugaringEnabled = true
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -78,7 +60,7 @@ android {
   }
 
   buildTypes {
-    getByName("debug") {
+    debug {
       buildConfigField("String", "MUSICINFO_APP_NAME", musicInfoAppName)
       buildConfigField("String", "MUSICINFO_APP_VERSION", musicInfoAppVersion)
       buildConfigField("String", "MUSICINFO_CONTACT_EMAIL", musicInfoEmail)
@@ -88,7 +70,7 @@ android {
       isTestCoverageEnabled = false
     }
 
-    getByName("release") {
+    release {
       isMinifyEnabled = false
     }
   }
@@ -115,59 +97,49 @@ android {
     suppressWarnings = false
     verbose = true
     freeCompilerArgs = listOf(
-      "-XXLanguage:+InlineClasses",
-      "-Xinline-classes",
       "-Xopt-in=kotlin.RequiresOptIn",
-      "-Xexplicit-api=warning",
-      "-Xuse-14-inline-classes-mangling-scheme"
+      "-Xexplicit-api=warning"
     )
   }
 }
 
 dependencies {
-  coreLibraryDesugaring(ToolsLib.DESUGARING)
+  coreLibraryDesugaring(Libs.DESUGAR)
   implementation(kotlin("stdlib-jdk8"))
-  implementation(SupportLibs.ANDROIDX_APPCOMPAT)
-  implementation(SupportLibs.ANDROIDX_CORE_KTX)
-  implementation(SupportLibs.ANDROIDX_STARTUP)
+  implementation(Libs.AndroidX.APPCOMPAT)
+  implementation(Libs.AndroidX.Ktx.CORE)
+  implementation(Libs.AndroidX.STARTUP)
 
-  implementation(ThirdParty.EALVABRAINZ)
-  implementation(ThirdParty.EALVABRAINZ_SERVICE)
-  implementation(ThirdParty.EALVALOG)
-  implementation(ThirdParty.EALVALOG_CORE)
-  implementation(ThirdParty.COROUTINE_CORE)
-  implementation(ThirdParty.COROUTINE_ANDROID)
-  implementation(ThirdParty.SPOTIFY_API)
+  implementation(Libs.EAlvaBrainz.BRAINZ)
+  implementation(Libs.EAlvaBrainz.BRAINZ_SERVICE)
+  implementation(Libs.EAlvaLog.EALVALOG)
+  implementation(Libs.EAlvaLog.CORE)
+  implementation(Libs.Kotlin.Coroutines.CORE)
+  implementation(Libs.Kotlin.Coroutines.ANDROID)
+  implementation(Libs.Spotify.API)
 
-  implementation(ThirdParty.RETROFIT)
-  implementation(ThirdParty.MOSHI)
-  implementation(ThirdParty.MOSHI_RETROFIT)
-  implementation(ThirdParty.OKHTTP)
-  implementation(ThirdParty.OKHTTP_LOGGING)
-  kapt(ThirdParty.MOSHI_CODEGEN)
+  implementation(Libs.Square.RETROFIT)
+  implementation(Libs.Square.MOSHI)
+  implementation(Libs.Square.MOSHI_RETROFIT)
+  implementation(Libs.Square.OKHTTP)
+  implementation(Libs.Square.OKHTTP_LOGGING)
+  kapt(Libs.Square.MOSHI_CODEGEN)
 
-  implementation(ThirdParty.KOTLIN_RESULT)
+  implementation(Libs.Result.RESULT)
+  implementation(Libs.Result.COROUTINES)
 
-  testImplementation(TestingLib.JUNIT)
-  testImplementation(AndroidTestingLib.ANDROIDX_TEST_CORE) {
-    exclude("junit", "junit")
-  }
-  testImplementation(AndroidTestingLib.ANDROIDX_TEST_RULES) {
-    exclude("junit", "junit")
-  }
-  testImplementation(TestingLib.EXPECT)
-  testImplementation(TestingLib.ROBOLECTRIC)
-  testImplementation(TestingLib.COROUTINE_TEST)
-  testImplementation(TestingLib.MOCKITO_KOTLIN)
-  testImplementation(TestingLib.MOCKITO_INLINE)
+  testImplementation(Libs.JUnit.JUNIT)
+  testImplementation(Libs.AndroidX.Test.CORE)
+  testImplementation(Libs.AndroidX.Test.RULES)
+  testImplementation(Libs.Expect.EXPECT)
+  testImplementation(Libs.Robolectric.ROBOLECTRIC)
+  testImplementation(Libs.Kotlin.Coroutines.TEST)
+  testImplementation(Libs.Mockito.KOTLIN)
+  testImplementation(Libs.Mockito.INLINE)
 
-  androidTestImplementation(AndroidTestingLib.ANDROIDX_TEST_RUNNER) {
-    exclude("junit", "junit")
-  }
-  androidTestImplementation(AndroidTestingLib.ANDROIDX_TEST_EXT_JUNIT) {
-    exclude("junit", "junit")
-  }
-  androidTestImplementation(TestingLib.JUNIT)
-  androidTestImplementation(TestingLib.EXPECT)
-  androidTestImplementation(TestingLib.COROUTINE_TEST)
+  androidTestImplementation(Libs.AndroidX.Test.RUNNER)
+  androidTestImplementation(Libs.AndroidX.Test.Ext.JUNIT)
+  androidTestImplementation(Libs.JUnit.JUNIT)
+  androidTestImplementation(Libs.Expect.EXPECT)
+  androidTestImplementation(Libs.Kotlin.Coroutines.TEST)
 }

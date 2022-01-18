@@ -20,6 +20,7 @@ package com.ealva.musicinfo
 import com.ealva.musicinfo.service.art.CompositeFinderIntegrationTest
 import com.ealva.musicinfo.service.lastfm.LastFmSmokeTest
 import com.ealva.musicinfo.service.spotify.SpotifySmokeTest
+import com.ealva.musicinfo.service.wiki.WikiSmokeTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
@@ -30,6 +31,7 @@ import org.junit.runners.Suite
 @Suite.SuiteClasses(
   LastFmSmokeTest::class,
   SpotifySmokeTest::class,
+  WikiSmokeTest::class,
 //  BrainzArtFinderIntegrationTest::class,
 //  LastFmArtFinderIntegrationTest::class,
 //  SpotifyArtFinderIntegrationTest::class,

@@ -30,6 +30,10 @@ import com.ealva.ealvabrainz.common.ArtistName
 import com.ealva.ealvabrainz.common.RecordingTitle
 import com.ealva.musicinfo.BuildConfig
 import com.ealva.musicinfo.R
+import com.ealva.musicinfo.service.common.AppName
+import com.ealva.musicinfo.service.common.AppVersion
+import com.ealva.musicinfo.service.common.ContactEmail
+import com.ealva.musicinfo.service.init.EalvaMusicInfo
 import com.ealva.musicinfo.service.lastfm.LastFmService
 import com.ealva.musicinfo.service.spotify.SpotifyService
 import com.ealva.musicinfo.test.shared.MainCoroutineRule
@@ -44,7 +48,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 private val THE_BEATLES = ArtistName("The Beatles")
 private val REVOLVER = AlbumTitle("Revolver")
@@ -72,23 +75,25 @@ public class CompositeFinderIntegrationTest {
             BuildConfig.MUSICINFO_APP_NAME,
             BuildConfig.MUSICINFO_APP_VERSION,
             BuildConfig.MUSICINFO_CONTACT_EMAIL,
+            true,
+            clientForBuilder = EalvaMusicInfo.okHttpClient,
             dispatcher = coroutineRule.testDispatcher
           )
         ),
         LastFmArtFinder(
           LastFmService(
-            BuildConfig.MUSICINFO_APP_NAME,
-            BuildConfig.MUSICINFO_APP_VERSION,
-            BuildConfig.MUSICINFO_CONTACT_EMAIL,
-            BuildConfig.LASTFM_API_KEY,
-            File(appCtx.cacheDir, "TestLastFmCache"),
-            coroutineRule.testDispatcher
+            AppName(BuildConfig.MUSICINFO_APP_NAME),
+            AppVersion(BuildConfig.MUSICINFO_APP_VERSION),
+            ContactEmail(BuildConfig.MUSICINFO_CONTACT_EMAIL),
+            LastFmService.LastFmApiKey(BuildConfig.LASTFM_API_KEY),
+            okHttpClient = EalvaMusicInfo.okHttpClient,
+            dispatcher = coroutineRule.testDispatcher
           )
         ),
         SpotifyArtFinder(
           SpotifyService.make(
-            BuildConfig.SPOTIFY_CLIENT_ID,
-            BuildConfig.SPOTIFY_CLIENT_SECRET,
+            SpotifyService.SpotifyClientId(BuildConfig.SPOTIFY_CLIENT_ID),
+            SpotifyService.SpotifyClientSecret(BuildConfig.SPOTIFY_CLIENT_SECRET),
             coroutineRule.testDispatcher
           )
         )
@@ -101,7 +106,7 @@ public class CompositeFinderIntegrationTest {
 
   @Test
   public fun testBeatlesRevolverArt(): Unit = find {
-    findAlbumArt(THE_BEATLES, REVOLVER).toList().let { list ->
+    findAlbumArt(THE_BEATLES, REVOLVER,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for Beatles Revolver" }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_musicbrainz_logo }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_lastfm_square_logo }
@@ -112,7 +117,7 @@ public class CompositeFinderIntegrationTest {
   @Test
   public fun testBeatlesRubberSoulArt(): Unit = find {
     val releaseMbid = ReleaseMbid("d1092e74-6412-4bc6-a91c-bc3588b764f9")
-    findAlbumArt(THE_BEATLES, RUBBER_SOUL, releaseMbid = releaseMbid).toList().let { list ->
+    findAlbumArt(THE_BEATLES, RUBBER_SOUL, releaseMbid = releaseMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for Beatles Revolver" }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_musicbrainz_logo }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_lastfm_square_logo }
@@ -123,7 +128,7 @@ public class CompositeFinderIntegrationTest {
   @Test
   public fun testTheBeatlesMbidArt(): Unit = find {
     val artistMbid = ArtistMbid("b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d")
-    findArtistArt(THE_BEATLES, artistMbid).toList().let { list ->
+    findArtistArt(THE_BEATLES, artistMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles mbid" }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_lastfm_square_logo }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_spotify_green_logo }
@@ -132,7 +137,7 @@ public class CompositeFinderIntegrationTest {
 
   @Test
   public fun testTheBeatlesArt(): Unit = find {
-    findArtistArt(THE_BEATLES).toList().let { list ->
+    findArtistArt(THE_BEATLES,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles" }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_lastfm_square_logo }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_spotify_green_logo }

@@ -30,7 +30,11 @@ import com.ealva.ealvabrainz.common.Limit
 import com.ealva.ealvabrainz.common.RecordingTitle
 import com.ealva.musicinfo.BuildConfig
 import com.ealva.musicinfo.lastfm.LastFm
+import com.ealva.musicinfo.service.common.AppName
+import com.ealva.musicinfo.service.common.AppVersion
+import com.ealva.musicinfo.service.common.ContactEmail
 import com.ealva.musicinfo.service.common.MusicInfoMessage
+import com.ealva.musicinfo.service.init.EalvaMusicInfo
 import com.ealva.musicinfo.test.shared.MainCoroutineRule
 import com.ealva.musicinfo.test.shared.runBlockingTest
 import com.ealva.musicinfo.test.shared.toHaveAny
@@ -45,7 +49,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -63,11 +66,11 @@ public class LastFmSmokeTest {
   public fun setup() {
     appCtx = ApplicationProvider.getApplicationContext()
     lastFmService = LastFmService(
-      BuildConfig.MUSICINFO_APP_NAME,
-      BuildConfig.MUSICINFO_APP_VERSION,
-      BuildConfig.MUSICINFO_CONTACT_EMAIL,
-      BuildConfig.LASTFM_API_KEY,
-      File(appCtx.cacheDir, "TestLastFmCache"),
+      AppName(BuildConfig.MUSICINFO_APP_NAME),
+      AppVersion(BuildConfig.MUSICINFO_APP_VERSION),
+      ContactEmail(BuildConfig.MUSICINFO_CONTACT_EMAIL),
+      LastFmService.LastFmApiKey(BuildConfig.LASTFM_API_KEY),
+      EalvaMusicInfo.okHttpClient,
       coroutineRule.testDispatcher
     )
     // ensure we do not exceed rate limiting as we are creating the services each time and not

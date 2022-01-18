@@ -60,7 +60,7 @@ public class SpotifyArtFinder(private val spotify: SpotifyService) : ArtFinder {
 
   private suspend fun doFindAlbumArt(
     artist: ArtistName,
-    albumTitle: AlbumTitle
+    albumTitle: AlbumTitle,
   ): Flow<RemoteImage> = spotify.searchAlbum {
     artist(artist)
     album(albumTitle)
@@ -120,9 +120,12 @@ public class SpotifyArtFinder(private val spotify: SpotifyService) : ArtFinder {
     return RemoteImage(
       url,
       actualSize.toSizeBucket(),
+      TYPE_FRONT,
       R.drawable.ic_spotify_green_logo,
       SPOTIFY_INTENT,
       actualSize
     )
   }
 }
+
+private val TYPE_FRONT = setOf(RemoteImageType.FRONT)

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2021  Eric A. Snell
   ~
   ~ This file is part of eAlvaMusicInfo
@@ -27,7 +26,9 @@
     android:supportsRtl="true"
     android:theme="@style/Theme.Musicinfo"
     tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-    <activity android:name="com.ealva.musicinfoapp.ui.main.MainActivity">
+    <activity
+      android:name="com.ealva.musicinfoapp.ui.main.MainActivity"
+      android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 

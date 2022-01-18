@@ -15,31 +15,15 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ealva.musicinfo.lastfm.data
+package com.ealva.musicinfo.wiki.data
 
-internal object FallbackMap {
+internal object WikiFallbackMap {
   private val map = mapOf(
-    Album.fallbackMapping,
-    AlbumReply.fallbackMapping,
-    Artist.fallbackMapping,
-    ArtistReply.fallbackMapping,
-    TrackAttr.fallbackMapping,
-    Bio.fallbackMapping,
-    Image.fallbackMapping,
-    Link.fallbackMapping,
-    Links.fallbackMapping,
-    Similar.fallbackMapping,
-    SimilarArtist.fallbackMapping,
-    Stats.fallbackMapping,
-    Streamable.fallbackMapping,
-    Tag.fallbackMapping,
-    Tags.fallbackMapping,
-    TopTags.fallbackMapping,
-    Track.fallbackMapping,
-    TrackArtist.fallbackMapping,
-    AlbumTracks.fallbackMapping,
-    TrackReply.fallbackMapping,
-    Wiki.fallbackMapping
+    WikiImage.fallbackMapping,
+    WikiDataEntities.fallbackMapping,
+    WikiDataEntity.fallbackMapping,
+    WikiDataSiteLink.fallbackMapping,
+    WikiSummary.fallbackMapping,
   )
 
   fun get(key: String): Any {

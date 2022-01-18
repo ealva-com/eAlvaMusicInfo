@@ -31,10 +31,10 @@ public class Album(
   @field:Json(name = "image") public val imageList: List<Image> = emptyList(),
   @field:Json(name = "listeners") public val listenerCount: String = "",
   @field:Json(name = "playcount") public val playCount: String = "",
-  public val tracks: AlbumTracks = AlbumTracks.NullAlbumTracks,
-  public val tags: Tags = Tags.NullTags,
-  public val wiki: Wiki = Wiki.NullWiki,
-  public val attr: TrackAttr = TrackAttr.NullAttr
+  @field:FallbackOnNull public val tracks: AlbumTracks = AlbumTracks.NullAlbumTracks,
+//  @field:FallbackOnNull public val tags: Tags = Tags.NullTags,
+  @field:FallbackOnNull public val wiki: Wiki = Wiki.NullWiki,
+  @field:FallbackOnNull public val attr: TrackAttr = TrackAttr.NullAttr
 ) {
   override fun toString(): String = toJson()
 

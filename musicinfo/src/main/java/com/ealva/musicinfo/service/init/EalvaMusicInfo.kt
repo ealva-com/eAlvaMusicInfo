@@ -21,6 +21,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.core.content.getSystemService
+import okhttp3.Cache
+import okhttp3.OkHttpClient
+import java.io.File
+
+private const val FIFTY_MEG = 50L * 1024L * 1024L
 
 @SuppressLint("StaticFieldLeak")
 public object EalvaMusicInfo {
@@ -32,6 +37,16 @@ public object EalvaMusicInfo {
 
   public fun init(context: Context): EalvaMusicInfo = apply {
     appCtx = context.applicationContext
+  }
+
+  @Suppress("MemberVisibilityCanBePrivate")
+  public val cacheDir: File
+    get() = File(appCtx.cacheDir, "MusicInfoCache")
+
+  public val okHttpClient: OkHttpClient by lazy {
+    OkHttpClient.Builder().apply {
+      cache(Cache(cacheDir, FIFTY_MEG))
+    }.build()
   }
 }
 

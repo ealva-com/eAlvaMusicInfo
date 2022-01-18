@@ -30,7 +30,6 @@ pluginManagement {
     }
   }
   repositories {
-    jcenter()
     gradlePluginPortal()
     google()
     mavenCentral()
@@ -38,4 +37,3 @@ pluginManagement {
 }
 
 rootProject.name = ("eAlva MusicInfo")
-include(":musicinfo")

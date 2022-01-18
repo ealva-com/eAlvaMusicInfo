@@ -48,6 +48,7 @@ import com.github.michaelbull.result.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEmpty
 
 private val LOG by libLogger(LastFmArtFinder::class)
@@ -76,7 +77,7 @@ public class LastFmArtFinder(private val lastfm: LastFmService) : ArtFinder {
   }
 
   private suspend fun doFindAlbumArt(
-    releaseMbid: ReleaseMbid
+    releaseMbid: ReleaseMbid,
   ): Flow<RemoteImage> = getAlbum("$releaseMbid") {
     getAlbumInfo(releaseMbid)
   }
@@ -88,7 +89,8 @@ public class LastFmArtFinder(private val lastfm: LastFmService) : ArtFinder {
     .andThen { if (it.imageList.isEmpty()) makeErr("No images for $data") else Ok(it.imageList) }
     .imageListToFlow()
 
-  private fun Result<List<Image>, MusicInfoMessage>.imageListToFlow(): Flow<RemoteImage> =
+  private fun Result<List<Image>, MusicInfoMessage>.imageListToFlow(
+  ): Flow<RemoteImage> =
     onFailure { msg -> LOG.e { it(msg.toString()) } }
       .mapOrElse({ emptyList() }) { list -> list }
       .distinctBy { it.text }
@@ -112,7 +114,7 @@ public class LastFmArtFinder(private val lastfm: LastFmService) : ArtFinder {
   }
 
   private suspend fun doFindArtistArt(
-    artistMbid: ArtistMbid
+    artistMbid: ArtistMbid,
   ): Flow<RemoteImage> = getArtist("$artistMbid") {
     getArtistInfo(artistMbid)
   }
@@ -130,20 +132,21 @@ public class LastFmArtFinder(private val lastfm: LastFmService) : ArtFinder {
     trackMbid: TrackMbid?
   ): Flow<RemoteImage> = when {
     trackMbid != null -> doFindTrackArt(trackMbid).onEmpty {
-      if (artist.value.isNotBlank() && title.value.isNotBlank()) doFindTrackArt(artist, title)
+      if (artist.value.isNotBlank() && title.value.isNotBlank())
+        doFindTrackArt(artist, title)
     }
     else -> doFindTrackArt(artist, title)
   }
 
   private suspend fun doFindTrackArt(
-    trackMbid: TrackMbid
+    trackMbid: TrackMbid,
   ): Flow<RemoteImage> = getTrack("$trackMbid") {
     getTrackInfo(trackMbid)
   }
 
   private suspend fun doFindTrackArt(
     artist: ArtistName,
-    title: RecordingTitle
+    title: RecordingTitle,
   ): Flow<RemoteImage> = getTrack("$artist $title") {
     getTrackInfo(artist, title)
   }
@@ -172,5 +175,12 @@ private fun Image.Size.toSizeBucket(): SizeBucket {
 
 private fun makeErr(msg: String): Err<MusicInfoMessage> = Err(MusicInfoErrorMessage(msg))
 
-private fun Image.toRemoteImage() =
-  RemoteImage(text, theSize.toSizeBucket(), R.drawable.ic_lastfm_square_logo, LASTFM_INTENT)
+private fun Image.toRemoteImage() = RemoteImage(
+  text,
+  theSize.toSizeBucket(),
+  TYPE_FRONT,
+  R.drawable.ic_lastfm_square_logo,
+  LASTFM_INTENT
+)
+
+private val TYPE_FRONT = setOf(RemoteImageType.FRONT)

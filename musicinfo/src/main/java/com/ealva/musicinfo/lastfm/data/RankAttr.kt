@@ -23,7 +23,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 public class RankAttr(
-  @field:Json(name = "rank") public val artist: String = ""
+  @field:Json(name = "rank") public val rank: Int = 0
 ) {
   override fun toString(): String = toJson()
 

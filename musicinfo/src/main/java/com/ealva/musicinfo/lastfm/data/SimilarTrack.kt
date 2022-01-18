@@ -33,7 +33,15 @@ public class SimilarTrack(
   public val duration: Int = 0,
   public val artist: TrackArtist = TrackArtist.NullTrackArtist,
   @Json(name = "image") public val images: List<Image> = listOf(),
-)
+) {
+  override fun toString(): String = toJson()
+
+  public companion object {
+    public val NullSimilarTracks: SimilarTracks = SimilarTracks()
+    public val fallbackMapping: Pair<String, Any> =
+      SimilarTracks::class.java.name to NullSimilarTracks
+  }
+}
 
 public val SimilarTrack.trackMbid: TrackMbid
   get() = TrackMbid(mbid)

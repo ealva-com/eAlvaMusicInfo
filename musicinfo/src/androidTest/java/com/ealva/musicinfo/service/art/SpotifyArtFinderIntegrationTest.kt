@@ -63,8 +63,8 @@ public class SpotifyArtFinderIntegrationTest {
     runBlocking {
       finder = SpotifyArtFinder(
         SpotifyService.make(
-          BuildConfig.SPOTIFY_CLIENT_ID,
-          BuildConfig.SPOTIFY_CLIENT_SECRET,
+          SpotifyService.SpotifyClientId(BuildConfig.SPOTIFY_CLIENT_ID),
+          SpotifyService.SpotifyClientSecret(BuildConfig.SPOTIFY_CLIENT_SECRET),
           coroutineRule.testDispatcher
         )
       )
@@ -76,7 +76,7 @@ public class SpotifyArtFinderIntegrationTest {
 
   @Test
   public fun testBeatlesRevolverArt(): Unit = find {
-    findAlbumArt(THE_BEATLES, REVOLVER).toList().let { list ->
+    findAlbumArt(THE_BEATLES, REVOLVER,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for Beatles Revolver" }
     }
   }
@@ -84,7 +84,7 @@ public class SpotifyArtFinderIntegrationTest {
   @Test
   public fun testBeatlesRubberSoulArt(): Unit = find {
     val releaseMbid = ReleaseMbid("d1092e74-6412-4bc6-a91c-bc3588b764f9")
-    findAlbumArt(THE_BEATLES, RUBBER_SOUL, releaseMbid = releaseMbid).toList().let { list ->
+    findAlbumArt(THE_BEATLES, RUBBER_SOUL, releaseMbid = releaseMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for Beatles Revolver" }
     }
   }
@@ -92,14 +92,14 @@ public class SpotifyArtFinderIntegrationTest {
   @Test
   public fun testTheBeatlesMbidArt(): Unit = find {
     val artistMbid = ArtistMbid("b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d")
-    findArtistArt(THE_BEATLES, artistMbid).toList().let { list ->
+    findArtistArt(THE_BEATLES, artistMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles mbid" }
     }
   }
 
   @Test
   public fun testTheBeatlesArt(): Unit = find {
-    findArtistArt(THE_BEATLES).toList().let { list ->
+    findArtistArt(THE_BEATLES,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles" }
     }
   }
@@ -107,14 +107,14 @@ public class SpotifyArtFinderIntegrationTest {
   @Test
   public fun testBeatlesHappinessIsMbidArt(): Unit = find {
     val trackMbid = TrackMbid("f64ec76e-d63a-4842-8877-42d061bddba5")
-    findTrackArt(THE_BEATLES, HAPPINESS_IS, trackMbid).toList().let { list ->
+    findTrackArt(THE_BEATLES, HAPPINESS_IS, trackMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles/Happiness mbid" }
     }
   }
 
   @Test
   public fun testBeatlesHappinessArt(): Unit = find {
-    findTrackArt(THE_BEATLES, HAPPINESS_IS).toList().let { list ->
+    findTrackArt(THE_BEATLES, HAPPINESS_IS,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles Happiness Is" }
     }
   }

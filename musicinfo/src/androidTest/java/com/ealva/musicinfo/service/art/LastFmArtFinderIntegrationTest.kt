@@ -28,6 +28,9 @@ import com.ealva.ealvabrainz.common.AlbumTitle
 import com.ealva.ealvabrainz.common.ArtistName
 import com.ealva.ealvabrainz.common.RecordingTitle
 import com.ealva.musicinfo.BuildConfig
+import com.ealva.musicinfo.service.common.AppName
+import com.ealva.musicinfo.service.common.AppVersion
+import com.ealva.musicinfo.service.common.ContactEmail
 import com.ealva.musicinfo.service.lastfm.LastFmService
 import com.ealva.musicinfo.test.shared.MainCoroutineRule
 import com.ealva.musicinfo.test.shared.runBlockingTest
@@ -40,7 +43,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 private val THE_BEATLES = ArtistName("The Beatles")
 private val REVOLVER = AlbumTitle("Revolver")
@@ -63,12 +65,11 @@ public class LastFmArtFinderIntegrationTest {
     runBlocking {
       finder = LastFmArtFinder(
         LastFmService(
-          BuildConfig.MUSICINFO_APP_NAME,
-          BuildConfig.MUSICINFO_APP_VERSION,
-          BuildConfig.MUSICINFO_CONTACT_EMAIL,
-          BuildConfig.LASTFM_API_KEY,
-          File(appCtx.cacheDir, "TestLastFmCache"),
-          coroutineRule.testDispatcher
+          AppName(BuildConfig.MUSICINFO_APP_NAME),
+          AppVersion(BuildConfig.MUSICINFO_APP_VERSION),
+          ContactEmail(BuildConfig.MUSICINFO_CONTACT_EMAIL),
+          LastFmService.LastFmApiKey(BuildConfig.LASTFM_API_KEY),
+          dispatcher = coroutineRule.testDispatcher,
         )
       )
     }
@@ -79,7 +80,7 @@ public class LastFmArtFinderIntegrationTest {
 
   @Test
   public fun testBeatlesRevolverArt(): Unit = find {
-    findAlbumArt(THE_BEATLES, REVOLVER).toList().let { list ->
+    findAlbumArt(THE_BEATLES, REVOLVER,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for Beatles Revolver" }
     }
   }
@@ -87,7 +88,7 @@ public class LastFmArtFinderIntegrationTest {
   @Test
   public fun testBeatlesRubberSoulArt(): Unit = find {
     val releaseMbid = ReleaseMbid("d1092e74-6412-4bc6-a91c-bc3588b764f9")
-    findAlbumArt(ArtistName(""), AlbumTitle(""), releaseMbid = releaseMbid).toList().let { list ->
+    findAlbumArt(ArtistName(""), AlbumTitle(""), releaseMbid = releaseMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for Beatles Revolver mbid" }
     }
   }
@@ -95,14 +96,14 @@ public class LastFmArtFinderIntegrationTest {
   @Test
   public fun testTheBeatlesMbidArt(): Unit = find {
     val artistMbid = ArtistMbid("b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d")
-    findArtistArt(ArtistName(""), artistMbid).toList().let { list ->
+    findArtistArt(ArtistName(""), artistMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles mbid" }
     }
   }
 
   @Test
   public fun testTheBeatlesArt(): Unit = find {
-    findArtistArt(THE_BEATLES).toList().let { list ->
+    findArtistArt(THE_BEATLES,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles" }
     }
   }
@@ -110,14 +111,14 @@ public class LastFmArtFinderIntegrationTest {
   @Test
   public fun testBeatlesHappinessIsMbidArt(): Unit = find {
     val trackMbid = TrackMbid("f64ec76e-d63a-4842-8877-42d061bddba5")
-    findTrackArt(ArtistName(""), RecordingTitle(""), trackMbid).toList().let { list ->
+    findTrackArt(ArtistName(""), RecordingTitle(""), trackMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles/Happiness mbid" }
     }
   }
 
   @Test
   public fun testBeatlesHappinessArt(): Unit = find {
-    findTrackArt(THE_BEATLES, HAPPINESS_IS).toList().let { list ->
+    findTrackArt(THE_BEATLES, HAPPINESS_IS,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles Happiness Is" }
     }
   }

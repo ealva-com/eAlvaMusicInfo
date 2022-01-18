@@ -38,24 +38,23 @@ import com.ealva.ealvalog.e
 import com.ealva.ealvalog.invoke
 import com.ealva.musicinfo.R
 import com.ealva.musicinfo.log.libLogger
-import com.ealva.musicinfo.service.common.MusicInfoMessage
 import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoErrorMessage
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapAll
 import com.github.michaelbull.result.mapError
-import com.github.michaelbull.result.mapOrElse
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.toErrorIf
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEmpty
 
 private val LOG by libLogger(BrainzArtFinder::class)
 private val BRAINZ_INTENT = Intent(Intent.ACTION_VIEW, Uri.parse("https://musicbrainz.org/"))
-private val EMPTY_FLOW: (MusicInfoMessage) -> Flow<RemoteImage> = { emptyFlow() }
 
 public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder {
 
@@ -84,28 +83,36 @@ public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder
   private suspend fun albumArt(
     artist: ArtistName,
     albumTitle: AlbumTitle
-  ): Flow<RemoteImage> = brainz.findReleaseGroup { artist(artist) and releaseGroup(albumTitle) }
+  ): Flow<RemoteImage> = brainz
+    .findReleaseGroup {
+      artist(artist) and releaseGroup(albumTitle) and status(Release.Status.Official)
+    }
     .mapError { brainzMessage -> MusicInfoErrorMessage(brainzMessage.toString()) }
     .toErrorIf({ groupList -> groupList.releaseGroups.isEmpty() }) {
       MusicInfoErrorMessage("No release groups for $artist $albumTitle")
     }
-    .map { groupList -> groupList.releaseGroups[0].mbid }
+    .map { releaseGroupList -> releaseGroupList.releaseGroups }
+    .mapAll { releaseGroup -> Ok(albumArt(releaseGroup.mbid)) }
     .onFailure { msg -> LOG.e { it(msg.toString()) } }
-    .mapOrElse(EMPTY_FLOW) { mbid -> albumArt(mbid) }
+    .getOrElse { emptyList() }
+    .merge()
+    .distinctBy { remoteImage -> remoteImage.location }
 
   /**
    * [MusicBrainzService.releaseGroupArtFlow] does not return duplicates, so no distinctBy is
    * required
    */
-  private suspend fun albumArt(groupMbid: ReleaseGroupMbid): Flow<RemoteImage> =
-    brainz.releaseGroupArtFlow(groupMbid).transform()
+  private suspend fun albumArt(groupMbid: ReleaseGroupMbid): Flow<RemoteImage> = brainz
+    .releaseGroupArtFlow(groupMbid)
+    .transform()
 
   /**
    * [MusicBrainzService.releaseArtFlow] does not return duplicates, so no distinctBy is
    * required
    */
-  private suspend fun albumArt(releaseMbid: ReleaseMbid): Flow<RemoteImage> =
-    brainz.releaseArtFlow(releaseMbid).transform()
+  private suspend fun albumArt(releaseMbid: ReleaseMbid): Flow<RemoteImage> = brainz
+    .releaseArtFlow(releaseMbid)
+    .transform()
 
   /**
    * Produces an empty flow as MusicBrainz/CoverArtArchive don't have artist artwork
@@ -123,7 +130,9 @@ public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder
     title: RecordingTitle,
     trackMbid: TrackMbid?
   ): Flow<RemoteImage> = when {
-    trackMbid != null -> trackArt(trackMbid).onEmpty { emitAll(trackArt(artist, title)) }
+    trackMbid != null -> trackArt(trackMbid).onEmpty {
+      emitAll(trackArt(artist, title))
+    }
     else -> trackArt(artist, title)
   }
 
@@ -134,31 +143,35 @@ public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder
     .toErrorIf({ list -> list.releases.isEmpty() }) {
       MusicInfoErrorMessage("No releases for $trackMbid")
     }
-    .map { list -> Ok(list.releases[0].mbid) }
+    .map { browseReleaseList -> browseReleaseList.releases }
+    .mapAll { release -> Ok(albumArt(release.mbid)) }
     .onFailure { msg -> LOG.e { it(msg.toString()) } }
-    .mapOrElse(EMPTY_FLOW) { mbid -> albumArt(mbid.value) }
+    .getOrElse { emptyList() }
+    .merge()
+    .distinctBy { remoteImage -> remoteImage.location }
 
   private suspend fun browseTrackReleases(
     trackMbid: TrackMbid
   ): BrainzResult<BrowseReleaseList> = brainz.browseReleases(BrowseOn.Track(trackMbid)) {
+    status(Release.Status.Official)
     include(Release.Browse.ReleaseGroups)
   }
 
   private suspend fun trackArt(
     artist: ArtistName,
-    track: RecordingTitle,
-  ): Flow<RemoteImage> = brainz.findRecording { artist(artist) and recording(track) }
+    track: RecordingTitle
+  ): Flow<RemoteImage> = brainz
+    .findRecording { artist(artist) and recording(track) }
     .mapError { brainzMessage -> MusicInfoErrorMessage(brainzMessage.toString()) }
     .toErrorIf({ list -> list.recordings.isEmpty() }) {
       MusicInfoErrorMessage("No recordings for $artist $track")
     }
-    .map { list -> list.recordings[0] }
-    .toErrorIf({ recording -> recording.releases.isEmpty() }) { recording ->
-      MusicInfoErrorMessage("No releases for $recording")
-    }
-    .map { recording -> recording.releases[0].mbid }
-    .onFailure { msg -> LOG.e { it(msg.toString()) } }
-    .mapOrElse(EMPTY_FLOW) { mbid -> albumArt(mbid) }
+    .map { recordingList -> recordingList.recordings }
+    .getOrElse { emptyList() }
+    .flatMap { recording -> recording.releases }
+    .map { release -> albumArt(release.mbid) }
+    .merge()
+    .distinctBy { remoteImage -> remoteImage.location }
 }
 
 private fun CoverArtImageSize.toSizeBucket(): SizeBucket {
@@ -177,4 +190,18 @@ private fun Flow<CoverArtImageInfo>.transform(): Flow<RemoteImage> = flow {
 }
 
 private fun CoverArtImageInfo.toRemoteImage() =
-  RemoteImage(location, size.toSizeBucket(), R.drawable.ic_musicbrainz_logo, BRAINZ_INTENT)
+  RemoteImage(
+    location,
+    size.toSizeBucket(),
+    types.mapTo(mutableSetOf()) { coverArtImageType -> coverArtImageType.asRemoteImageType },
+    R.drawable.ic_musicbrainz_logo,
+    BRAINZ_INTENT
+  )
+
+private fun <T, K> Flow<T>.distinctBy(selector: (T) -> K): Flow<T> = flow {
+  val past = HashSet<K>()
+  collect {
+    if (past.add(selector(it))) emit(it)
+  }
+}
+

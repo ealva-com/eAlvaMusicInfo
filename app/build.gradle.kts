@@ -21,11 +21,11 @@ plugins {
 }
 
 android {
-  compileSdkVersion(Sdk.COMPILE_SDK_VERSION)
+  compileSdk = SdkVersion.COMPILE
 
   defaultConfig {
-    minSdkVersion(Sdk.MIN_SDK_VERSION)
-    targetSdkVersion(Sdk.TARGET_SDK_VERSION)
+    minSdk = SdkVersion.MIN
+    targetSdk = SdkVersion.TARGET
 
     applicationId = AppCoordinates.APP_ID
     versionCode = AppCoordinates.APP_VERSION_CODE
@@ -33,15 +33,26 @@ android {
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     signingConfig = signingConfigs.getByName("debug")
   }
+
   compileOptions {
     isCoreLibraryDesugaringEnabled = true
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
+
   buildTypes {
     getByName("release") {
       isMinifyEnabled = true
     }
+  }
+
+  buildFeatures {
+    // Enables Jetpack Compose for this module
+    compose = true
+  }
+
+  composeOptions {
+    kotlinCompilerExtensionVersion = Libs.AndroidX.Compose.COMPILER_VERSION
   }
 
   lint {
@@ -56,51 +67,48 @@ android {
     suppressWarnings = false
     verbose = true
     freeCompilerArgs = listOf(
-      "-XXLanguage:+InlineClasses",
-      "-Xinline-classes",
       "-Xopt-in=kotlin.RequiresOptIn",
-      "-Xuse-14-inline-classes-mangling-scheme",
-      "-Xskip-prerelease-check"
     )
   }
 }
 
 dependencies {
-  coreLibraryDesugaring(ToolsLib.DESUGARING)
+  coreLibraryDesugaring(Libs.DESUGAR)
   implementation(project(":musicinfo"))
   implementation(kotlin("stdlib-jdk8"))
 
-  implementation(SupportLibs.ANDROIDX_APPCOMPAT)
-  implementation(SupportLibs.ANDROIDX_CONSTRAINT_LAYOUT)
-  implementation(SupportLibs.ANDROIDX_CORE_KTX)
-  implementation(SupportLibs.ANDROIDX_LIFECYCLE_RUNTIME_KTX)
+  implementation(Libs.AndroidX.APPCOMPAT)
+  implementation(Libs.AndroidX.Activity.COMPOSE)
+  implementation("com.android.support.constraint:constraint-layout:2.0.4")
+  implementation(Libs.AndroidX.Ktx.CORE)
+  implementation(Libs.AndroidX.Lifecycle.RUNTIME_KTX)
+  implementation(Libs.AndroidX.Compose.UI)
+  implementation(Libs.AndroidX.Compose.MATERIAL)
+  implementation(Libs.AndroidX.Compose.TOOLING)
 
-  implementation(ThirdParty.KOTLIN_RESULT)
+  implementation(Libs.Result.RESULT)
+  implementation(Libs.Result.COROUTINES)
 
-  implementation("androidx.activity:activity-ktx:1.2.2")
-  implementation("androidx.fragment:fragment-ktx:1.3.3")
-  implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
-  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-  implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
-  implementation("androidx.lifecycle:lifecycle-common-java8:2.3.1")
+  implementation("androidx.activity:activity-ktx:1.4.0")
+  implementation("androidx.fragment:fragment-ktx:1.4.0")
+  implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
+  implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.0")
+  implementation("androidx.lifecycle:lifecycle-common-java8:2.4.0")
   implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
-  implementation("com.google.android.material:material:1.3.0")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3")
+  implementation("com.google.android.material:material:1.5.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 
-  implementation(ThirdParty.EALVALOG)
-  implementation(ThirdParty.EALVALOG_CORE)
-  implementation(ThirdParty.EALVALOG_ANDROID)
+  implementation(Libs.EAlvaLog.EALVALOG)
+  implementation(Libs.EAlvaLog.CORE)
+  implementation(Libs.EAlvaLog.ANDROID)
 
-  implementation(ThirdParty.KOIN)
-  implementation(ThirdParty.KOIN_ANDROID)
+  implementation(Libs.Koin.CORE)
+  implementation(Libs.Koin.ANDROID)
 
-  testImplementation(TestingLib.JUNIT)
-  testImplementation(AndroidTestingLib.ANDROIDX_TEST_CORE) {
-    exclude("junit", "junit")
-  }
-  testImplementation(AndroidTestingLib.ANDROIDX_TEST_RULES) {
-    exclude("junit", "junit")
-  }
-  testImplementation(TestingLib.EXPECT)
+  testImplementation(Libs.JUnit.JUNIT)
+  testImplementation(Libs.AndroidX.Test.CORE)
+  testImplementation(Libs.AndroidX.Test.RULES)
+  testImplementation(Libs.Expect.EXPECT)
 }

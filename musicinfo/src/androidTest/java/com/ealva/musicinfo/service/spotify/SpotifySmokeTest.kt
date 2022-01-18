@@ -57,8 +57,8 @@ public class SpotifySmokeTest {
     appCtx = ApplicationProvider.getApplicationContext()
     runBlocking {
       spotifyService = SpotifyService.make(
-        BuildConfig.SPOTIFY_CLIENT_ID,
-        BuildConfig.SPOTIFY_CLIENT_SECRET,
+        SpotifyService.SpotifyClientId(BuildConfig.SPOTIFY_CLIENT_ID),
+        SpotifyService.SpotifyClientSecret(BuildConfig.SPOTIFY_CLIENT_SECRET),
         coroutineRule.testDispatcher
       )
     }

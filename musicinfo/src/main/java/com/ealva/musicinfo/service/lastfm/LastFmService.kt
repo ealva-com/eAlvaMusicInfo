@@ -33,11 +33,15 @@ import com.ealva.musicinfo.lastfm.data.SimilarArtists
 import com.ealva.musicinfo.lastfm.data.SimilarTracks
 import com.ealva.musicinfo.lastfm.data.Track
 import com.ealva.musicinfo.lastfm.data.theLastFmMoshi
+import com.ealva.musicinfo.service.common.AppName
+import com.ealva.musicinfo.service.common.AppVersion
+import com.ealva.musicinfo.service.common.ContactEmail
 import com.ealva.musicinfo.service.common.MusicInfoMessage
 import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoExceptionMessage
 import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoLastFmMessage
 import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoStatusMessage.MusicInfoErrorCodeMessage
 import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoStatusMessage.MusicInfoNullReturn
+import com.ealva.musicinfo.service.init.EalvaMusicInfo
 import com.ealva.musicinfo.service.net.CacheControlInterceptor
 import com.ealva.musicinfo.service.net.ThrottlingInterceptor
 import com.github.michaelbull.result.Err
@@ -45,17 +49,15 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.andThen
 import com.github.michaelbull.result.mapError
-import com.github.michaelbull.result.runCatching
+import com.github.michaelbull.result.coroutines.runSuspendCatching
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.io.File
 
 /**
  * A LastFmCall is a suspending function which has a [LastFm] receiver and returns a Retrofit
@@ -113,6 +115,9 @@ private const val LASTFM_BASE_URL = "https://ws.audioscrobbler.com/"
  * [Result monad](https://github.com/michaelbull/kotlin-result)
  */
 public interface LastFmService {
+  @JvmInline
+  public value class LastFmApiKey(public val value: String)
+
   /**
    * Get Last.fm metadata for the [Album] using [albumTitle] and [artistName]. If [autoCorrect] is
    * [LastFm.AutoCorrect.Yes], any corrected name will be included in the result.
@@ -194,12 +199,12 @@ public interface LastFmService {
 
   public companion object {
     public operator fun invoke(
-      appName: String,
-      appVersion: String,
-      contactEmail: String,
-      apiKey: String,
-      cacheDirectory: File,
-      coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
+      appName: AppName,
+      appVersion: AppVersion,
+      contactEmail: ContactEmail,
+      apiKey: LastFmApiKey,
+      okHttpClient: OkHttpClient = EalvaMusicInfo.okHttpClient,
+      dispatcher: CoroutineDispatcher = Dispatchers.IO
     ): LastFmService = LastFmServiceImpl(
       Retrofit.Builder()
         .client(
@@ -209,15 +214,15 @@ public interface LastFmService {
             appVersion,
             contactEmail,
             apiKey,
-            cacheDirectory,
-            addLoggingInterceptor = BuildConfig.DEBUG
+            addLoggingInterceptor = BuildConfig.DEBUG,
+            okHttpClient = okHttpClient
           )
         )
         .baseUrl(LASTFM_BASE_URL)
         .addConverterFactory(MoshiConverterFactory.create(theLastFmMoshi))
         .build()
         .create(LastFm::class.java),
-      coroutineDispatcher
+      dispatcher
     ).also { println("$appName $appVersion $contactEmail $apiKey") }
   }
 }
@@ -295,7 +300,7 @@ private class LastFmServiceImpl(
   private suspend fun <U, S : LastFmReply<U>> lastFm(
     block: LastFmCall<S>
   ): LastFmResult<U> = withContext(dispatcher) {
-    runCatching { lastFm.block() }
+    runSuspendCatching { lastFm.block() }
       .mapError { ex -> MusicInfoExceptionMessage(ex) }
       .andThen { response ->
         if (response.isSuccessful) handleResponseBody(response) else makeErrorCodeErr(response)
@@ -322,17 +327,16 @@ private const val DAYS_MAX_AGE = 14
 private const val DAYS_MIN_FRESH = 14
 private const val DAYS_MAX_STALE = 365
 private const val LASTFM_MAX_CALLS_PER_SECOND = 5.0
-private const val TEN_MEG = 10 * 1024 * 1024
 
 internal fun makeOkHttpClient(
   serviceName: String,
-  appName: String,
-  appVersion: String,
-  contactEmail: String,
-  apiKey: String,
-  cacheDirectory: File,
-  addLoggingInterceptor: Boolean = true
-): OkHttpClient = OkHttpClient.Builder().apply {
+  appName: AppName,
+  appVersion: AppVersion,
+  contactEmail: ContactEmail,
+  apiKey: LastFmService.LastFmApiKey,
+  addLoggingInterceptor: Boolean = true,
+  okHttpClient: OkHttpClient
+): OkHttpClient = okHttpClient.newBuilder().apply {
   addInterceptor(CacheControlInterceptor(DAYS_MAX_AGE, DAYS_MIN_FRESH, DAYS_MAX_STALE))
   addInterceptor(ThrottlingInterceptor(LASTFM_MAX_CALLS_PER_SECOND, serviceName))
   addInterceptor(LastFmApiInterceptor(appName, appVersion, contactEmail, apiKey))
@@ -341,5 +345,4 @@ internal fun makeOkHttpClient(
       HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
     )
   }
-  cache(Cache(cacheDirectory, TEN_MEG.toLong()))
 }.build()

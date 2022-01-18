@@ -17,8 +17,7 @@
 
 package com.ealva.musicinfo.lastfm.data
 
-import com.ealva.ealvabrainz.brainz.data.FallbackOnNull
-import com.ealva.ealvabrainz.brainz.data.NullPrimitiveAdapter
+import com.ealva.musicinfo.moshi.StringJsonAdapter
 import com.squareup.moshi.Moshi
 
 internal fun Moshi.Builder.addRequired(): Moshi.Builder {

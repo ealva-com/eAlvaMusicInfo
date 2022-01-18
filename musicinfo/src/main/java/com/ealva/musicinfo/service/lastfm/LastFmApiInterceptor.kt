@@ -17,6 +17,9 @@
 
 package com.ealva.musicinfo.service.lastfm
 
+import com.ealva.musicinfo.service.common.AppName
+import com.ealva.musicinfo.service.common.AppVersion
+import com.ealva.musicinfo.service.common.ContactEmail
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -25,12 +28,13 @@ import okhttp3.Response
  * request.
  */
 public class LastFmApiInterceptor(
-  appName: String,
-  appVersion: String,
-  emailContact: String,
-  private val apiKey: String
+  appName: AppName,
+  appVersion: AppVersion,
+  contactEmail: ContactEmail,
+  lastFmApiKey: LastFmService.LastFmApiKey,
 ) : Interceptor {
-  private val userAgent: String = """$appName/$appVersion ($emailContact)"""
+  private val apiKey: String = lastFmApiKey.value
+  private val userAgent: String = """${appName.value}/${appVersion.value} (${contactEmail.value})"""
 
   override fun intercept(chain: Interceptor.Chain): Response {
     val originalRequest = chain.request()

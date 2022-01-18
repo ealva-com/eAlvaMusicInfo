@@ -15,6 +15,11 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package engineering.clientside.throttle
+package com.ealva.musicinfo.common
 
-public class ThrottleException(cause: Throwable) : RuntimeException(cause)
+public open class MusicInfoException(message: String, cause: Throwable? = null) :
+  RuntimeException(message, cause)
+
+public class NotWikipediaUrlException : MusicInfoException(
+  "URL must either be wikipedia.org or wikidata.org"
+)

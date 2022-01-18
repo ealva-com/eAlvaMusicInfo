@@ -32,7 +32,7 @@ public class Artist(
   @field:Json(name = "ontour") public val onTour: String = "",
   @field:Json(name = "stats") public val stats: Stats = Stats.NullStats,
   @field:Json(name = "similar") public val similar: Similar = Similar.NullSimilar,
-  @field:Json(name = "tags") public val tags: Tags = Tags.NullTags,
+//  @field:Json(name = "tags") public val tags: Tags = Tags.NullTags,
   @field:Json(name = "bio") public val bio: Bio = Bio.NullBio
 ) {
   override fun toString(): String = toJson()

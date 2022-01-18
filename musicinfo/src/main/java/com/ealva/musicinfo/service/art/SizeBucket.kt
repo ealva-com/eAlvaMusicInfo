@@ -20,13 +20,20 @@ package com.ealva.musicinfo.service.art
 import com.ealva.musicinfo.R
 import com.ealva.musicinfo.service.init.EalvaMusicInfo
 
-public sealed class SizeBucket(public val maybeVeryLarge: Boolean, private val stringRes: Int) {
-  public object Original : SizeBucket(true, R.string.Original)
-  public object ExtraLarge : SizeBucket(true, R.string.Extra_Large)
-  public object Large : SizeBucket(false, R.string.Large)
-  public object Medium : SizeBucket(false, R.string.Medium)
-  public object Small : SizeBucket(false, R.string.Small)
-  public object Unknown : SizeBucket(false, R.string.Unknown)
+public sealed class SizeBucket(
+  public val maybeVeryLarge: Boolean,
+  private val stringRes: Int,
+  private val size: Int
+) : Comparable<SizeBucket> {
+  public object Original : SizeBucket(true, R.string.Original, 3)
+  public object ExtraLarge : SizeBucket(true, R.string.Extra_Large, 4)
+  public object Large : SizeBucket(false, R.string.Large, 3)
+  public object Medium : SizeBucket(false, R.string.Medium, 2)
+  public object Small : SizeBucket(false, R.string.Small, 1)
+  public object Unknown : SizeBucket(false, R.string.Unknown, 0)
+
+  override fun compareTo(other: SizeBucket): Int = size.compareTo(other.size)
 
   override fun toString(): String = EalvaMusicInfo.fetch(stringRes)
 }
+

@@ -71,7 +71,7 @@ public @interface FallbackOnNull {
 
     private Object retrieveFallback(@SuppressWarnings("unused") FallbackOnNull annotation,
                                     String fallbackType) {
-      return FallbackMap.INSTANCE.get(fallbackType);
+      return LastFmFallbackMap.INSTANCE.get(fallbackType);
     }
   };
 }

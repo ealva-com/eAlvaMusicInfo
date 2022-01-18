@@ -36,7 +36,7 @@ public interface ArtFinder {
 
   public suspend fun findArtistArt(
     artist: ArtistName,
-    artistMbid: ArtistMbid? = null
+    artistMbid: ArtistMbid? = null,
   ): Flow<RemoteImage>
 
   public suspend fun findTrackArt(
