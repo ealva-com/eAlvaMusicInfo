@@ -19,6 +19,7 @@ package com.ealva.musicinfo.service.art
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Size
 import com.ealva.brainzsvc.service.BrainzResult
 import com.ealva.brainzsvc.service.CoverArtImageInfo
 import com.ealva.brainzsvc.service.MusicBrainzService
@@ -33,10 +34,12 @@ import com.ealva.ealvabrainz.brainz.data.mbid
 import com.ealva.ealvabrainz.browse.ReleaseBrowse.BrowseOn
 import com.ealva.ealvabrainz.common.AlbumTitle
 import com.ealva.ealvabrainz.common.ArtistName
+import com.ealva.ealvabrainz.common.Limit
 import com.ealva.ealvabrainz.common.RecordingTitle
 import com.ealva.ealvalog.e
 import com.ealva.ealvalog.invoke
 import com.ealva.musicinfo.R
+import com.ealva.musicinfo.log._e
 import com.ealva.musicinfo.log.libLogger
 import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoErrorMessage
 import com.github.michaelbull.result.Ok
@@ -46,10 +49,15 @@ import com.github.michaelbull.result.mapAll
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.toErrorIf
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEmpty
 
@@ -136,6 +144,12 @@ public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder
     else -> trackArt(artist, title)
   }
 
+  /**
+   * In processing the stream of information, convert to a flow before creating other flows so
+   * that cancellation works correctly. The list of releases is converted to a flow and then
+   * flatMapMerge gets a flow for every release and merges them into a single flow.
+   */
+  @OptIn(FlowPreview::class)
   private suspend fun trackArt(
     trackMbid: TrackMbid
   ): Flow<RemoteImage> = browseTrackReleases(trackMbid)
@@ -144,10 +158,10 @@ public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder
       MusicInfoErrorMessage("No releases for $trackMbid")
     }
     .map { browseReleaseList -> browseReleaseList.releases }
-    .mapAll { release -> Ok(albumArt(release.mbid)) }
     .onFailure { msg -> LOG.e { it(msg.toString()) } }
     .getOrElse { emptyList() }
-    .merge()
+    .asFlow()
+    .flatMapMerge { release -> albumArt(release.mbid) }
     .distinctBy { remoteImage -> remoteImage.location }
 
   private suspend fun browseTrackReleases(
@@ -157,11 +171,17 @@ public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder
     include(Release.Browse.ReleaseGroups)
   }
 
+  /**
+   * In processing the stream of information, convert to a flow before creating other flows so
+   * that cancellation works correctly. The list of releases is converted to a flow and then
+   * map gets a flow for every release. Then flattenConcat merges them into a single flow.
+   */
+  @OptIn(FlowPreview::class)
   private suspend fun trackArt(
     artist: ArtistName,
     track: RecordingTitle
   ): Flow<RemoteImage> = brainz
-    .findRecording { artist(artist) and recording(track) }
+    .findRecording { artist(artist) and recording(track) and status(Release.Status.Official) }
     .mapError { brainzMessage -> MusicInfoErrorMessage(brainzMessage.toString()) }
     .toErrorIf({ list -> list.recordings.isEmpty() }) {
       MusicInfoErrorMessage("No recordings for $artist $track")
@@ -169,8 +189,9 @@ public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder
     .map { recordingList -> recordingList.recordings }
     .getOrElse { emptyList() }
     .flatMap { recording -> recording.releases }
+    .asFlow()
     .map { release -> albumArt(release.mbid) }
-    .merge()
+    .flattenConcat()
     .distinctBy { remoteImage -> remoteImage.location }
 }
 
@@ -195,8 +216,19 @@ private fun CoverArtImageInfo.toRemoteImage() =
     size.toSizeBucket(),
     types.mapTo(mutableSetOf()) { coverArtImageType -> coverArtImageType.asRemoteImageType },
     R.drawable.ic_musicbrainz_logo,
-    BRAINZ_INTENT
+    BRAINZ_INTENT,
+    size.toActual()
   )
+
+private fun CoverArtImageSize.toActual(): Size? {
+  return when (this) {
+    CoverArtImageSize.Original -> null
+    CoverArtImageSize.Size250 -> Size(250, 250)
+    CoverArtImageSize.Size500 -> Size(500, 500)
+    CoverArtImageSize.Size1200 -> Size(1200, 1200)
+    CoverArtImageSize.Unknown -> null
+  }
+}
 
 private fun <T, K> Flow<T>.distinctBy(selector: (T) -> K): Flow<T> = flow {
   val past = HashSet<K>()

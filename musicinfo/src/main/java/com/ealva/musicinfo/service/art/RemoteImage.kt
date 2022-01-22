@@ -25,61 +25,14 @@ import androidx.core.net.toUri
 import com.ealva.ealvabrainz.brainz.data.CoverArtImageType
 import com.ealva.musicinfo.service.net.toUriOrEmpty
 
-public interface RemoteImage : Comparable<RemoteImage> {
-  public val location: Uri
-  public val sizeBucket: SizeBucket
-  public val types: Set<RemoteImageType>
-  public val sourceLogoDrawableRes: Int
-  public val sourceIntent: Intent
-  public val actualSize: Size?
-
-  public companion object {
-    public operator fun invoke(
-      url: String,
-      bucket: SizeBucket,
-      types: Set<RemoteImageType>,
-      @DrawableRes sourceLogo: Int,
-      source: Intent,
-      actualSize: Size? = null
-    ): RemoteImage = RemoteImageData(
-      url.toSecureUri(),
-      bucket,
-      types,
-      sourceLogo,
-      source,
-      actualSize
-    )
-
-    public operator fun invoke(
-      url: Uri,
-      bucket: SizeBucket,
-      types: Set<RemoteImageType>,
-      @DrawableRes sourceLogo: Int,
-      source: Intent,
-      actualSize: Size? = null
-    ): RemoteImage = RemoteImageData(url, bucket, types, sourceLogo, source, actualSize)
-  }
-}
-
-private const val HTTP_LENGTH = 4
-private fun String?.toSecureUri(): Uri {
-  return if (this != null && startsWith("http:"))
-    "https${substring(HTTP_LENGTH)}".toUri()
-  else
-    toUriOrEmpty()
-}
-
-/**
- * Equality/hashCode/compareTo is determined solely by [location]
- */
-private class RemoteImageData(
-  override val location: Uri,
-  override val sizeBucket: SizeBucket,
-  override val types: Set<RemoteImageType>,
-  override val sourceLogoDrawableRes: Int,
-  override val sourceIntent: Intent,
-  override val actualSize: Size? = null,
-) : RemoteImage {
+public data class RemoteImage(
+  val location: Uri,
+  val sizeBucket: SizeBucket,
+  val types: Set<RemoteImageType>,
+  val sourceLogoDrawableRes: Int,
+  val sourceIntent: Intent,
+  val actualSize: Size? = null,
+) : Comparable<RemoteImage> {
   override fun compareTo(other: RemoteImage): Int {
     return location.compareTo(other.location)
   }
@@ -88,7 +41,7 @@ private class RemoteImageData(
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
-    other as RemoteImageData
+    other as RemoteImage
 
     if (location != other.location) return false
 
@@ -110,21 +63,46 @@ private class RemoteImageData(
     append(actualSize)
     append(")")
   }
+
+  public companion object {
+    public operator fun invoke(
+      url: String,
+      bucket: SizeBucket,
+      types: Set<RemoteImageType>,
+      @DrawableRes sourceLogo: Int,
+      source: Intent,
+      actualSize: Size? = null
+    ): RemoteImage = RemoteImage(
+      url.toSecureUri(),
+      bucket,
+      types,
+      sourceLogo,
+      source,
+      actualSize
+    )
+//
+//    public operator fun invoke(
+//      uri: Uri,
+//      bucket: SizeBucket,
+//      types: Set<RemoteImageType>,
+//      @DrawableRes sourceLogo: Int,
+//      source: Intent,
+//      actualSize: Size? = null
+//    ): RemoteImage = RemoteImage(uri, bucket, types, sourceLogo, source, actualSize)
+  }
 }
 
-public object NullRemoteImage : RemoteImage {
-  override val location: Uri = Uri.EMPTY
-  override val sizeBucket: SizeBucket = SizeBucket.Unknown
-  override val types: Set<RemoteImageType> = setOf(RemoteImageType.UNKNOWN)
-  override val sourceLogoDrawableRes: Int = 0
-  override val sourceIntent: Intent = Intent("", Uri.EMPTY)
-  override val actualSize: Size? = null
-  override fun compareTo(other: RemoteImage): Int = if (other === NullRemoteImage) 0 else -1
+private const val HTTP_LENGTH = 4
+internal fun String?.toSecureUri(): Uri {
+  return if (this != null && startsWith("http:"))
+    "https${substring(HTTP_LENGTH)}".toUri()
+  else
+    toUriOrEmpty()
 }
 
 /**
  * This can be used to filter images. MusicBrainz supplies a plethora of image types, but most
- * users only care about Front and possible Poster
+ * users assigning album art only care about Front and possibly Poster
  */
 public sealed class RemoteImageType(public val name: String) {
   // https://musicbrainz.org/doc/Cover_Art/Types

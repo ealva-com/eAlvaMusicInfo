@@ -19,6 +19,7 @@ package com.ealva.musicinfo.service.art
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Size
 import com.ealva.ealvabrainz.brainz.data.ArtistMbid
 import com.ealva.ealvabrainz.brainz.data.ReleaseGroupMbid
 import com.ealva.ealvabrainz.brainz.data.ReleaseMbid
@@ -48,7 +49,6 @@ import com.github.michaelbull.result.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEmpty
 
 private val LOG by libLogger(LastFmArtFinder::class)
@@ -175,12 +175,25 @@ private fun Image.Size.toSizeBucket(): SizeBucket {
 
 private fun makeErr(msg: String): Err<MusicInfoMessage> = Err(MusicInfoErrorMessage(msg))
 
-private fun Image.toRemoteImage() = RemoteImage(
-  text,
-  theSize.toSizeBucket(),
-  TYPE_FRONT,
-  R.drawable.ic_lastfm_square_logo,
-  LASTFM_INTENT
-)
+private fun Image.toRemoteImage(): RemoteImage {
+  val uri = text.toSecureUri()
+  return RemoteImage(
+    uri,
+    theSize.toSizeBucket(),
+    TYPE_FRONT,
+    R.drawable.ic_lastfm_square_logo,
+    LASTFM_INTENT,
+    uri.getActualSize()
+  )
+}
+
+private fun Uri.getActualSize(): Size? {
+  val segments = pathSegments
+  val sizeSegment = if (segments.size > 1) segments[segments.size - 2] else ""
+  return sizeSegment
+    .takeWhile { char -> char.isDigit() }
+    .toIntOrNull()
+    ?.let { size -> Size(size, size) }
+}
 
 private val TYPE_FRONT = setOf(RemoteImageType.FRONT)

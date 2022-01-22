@@ -42,6 +42,7 @@ import com.ealva.musicinfo.test.shared.toHaveAny
 import com.ealva.musicinfo.test.shared.toNotBeEmpty
 import com.nhaarman.expect.expect
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -147,7 +148,9 @@ public class CompositeFinderIntegrationTest {
   @Test
   public fun testBeatlesHappinessIsMbidArt(): Unit = find {
     val trackMbid = TrackMbid("f64ec76e-d63a-4842-8877-42d061bddba5")
-    findTrackArt(THE_BEATLES, HAPPINESS_IS, trackMbid).toList().let { list ->
+    findTrackArt(THE_BEATLES, HAPPINESS_IS, trackMbid)
+      .take(10)
+      .toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles/Happiness mbid" }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_musicbrainz_logo }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_lastfm_square_logo }
@@ -157,7 +160,9 @@ public class CompositeFinderIntegrationTest {
 
   @Test
   public fun testBeatlesHappinessArt(): Unit = find {
-    findTrackArt(THE_BEATLES, HAPPINESS_IS).toList().let { list ->
+    findTrackArt(THE_BEATLES, HAPPINESS_IS)
+      .take(8)
+      .toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles Happiness Is" }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_musicbrainz_logo }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_lastfm_square_logo }
