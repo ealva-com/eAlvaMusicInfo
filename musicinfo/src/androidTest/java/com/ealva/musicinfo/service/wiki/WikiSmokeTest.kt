@@ -22,9 +22,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.ealva.musicinfo.BuildConfig
+import com.ealva.musicinfo.common.NotWikipediaUrlException
 import com.ealva.musicinfo.service.common.AppName
 import com.ealva.musicinfo.service.common.AppVersion
 import com.ealva.musicinfo.service.common.ContactEmail
+import com.ealva.musicinfo.service.common.MusicInfoMessage
 import com.ealva.musicinfo.service.init.EalvaMusicInfo
 import com.ealva.musicinfo.test.shared.MainCoroutineRule
 import com.ealva.musicinfo.test.shared.runBlockingTest
@@ -66,23 +68,23 @@ public class WikiSmokeTest {
     Thread.sleep(500)
   }
 
-//  @Test
-//  public fun testGetWikipediaSummaryFromWikipediaUrl(): Unit = wiki {
-//    getArticleSummary(wikipediaUrl)
-//      .onSuccess { summary ->
-//        expect(summary.displayTitle).toBe("Nirvana (band)")
-//      }
-//      .onFailure { fail("Wikipedia call failed ") { it } }
-//  }
-//
-//  @Test
-//  public fun testGetWikipediaSummaryFromWikidataUrl(): Unit = wiki {
-//    getArticleSummary(wikidataUrl)
-//      .onSuccess { summary ->
-//        expect(summary.displayTitle).toBe("Nirvana (band)")
-//      }
-//      .onFailure { fail("Wikipedia call failed ") { it } }
-//  }
+  @Test
+  public fun testGetWikipediaSummaryFromWikipediaUrl(): Unit = wiki {
+    getArticleSummary(wikipediaUrl)
+      .onSuccess { summary ->
+        expect(summary.displayTitle).toBe("Nirvana (band)")
+      }
+      .onFailure { fail("Wikipedia call failed ") { it } }
+  }
+
+  @Test
+  public fun testGetWikipediaSummaryFromWikidataUrl(): Unit = wiki {
+    getArticleSummary(wikidataUrl)
+      .onSuccess { summary ->
+        expect(summary.displayTitle).toBe("Nirvana (band)")
+      }
+      .onFailure { fail("Wikipedia call failed ") { it } }
+  }
 
   @Test
   public fun testGetWikipediaSummaryFromArticleTitle(): Unit = wiki {
@@ -102,18 +104,18 @@ public class WikiSmokeTest {
       .onFailure { fail("Wikipedia call failed ") { it } }
   }
 
-//  @Test
-//  public fun testGetWikipediaSummaryFromMalformedUrl(): Unit = wiki {
-//    getArticleSummary(
-//      Url(id = "", resource = "http://ealva.com/")
-//    ).onSuccess {
-//      fail("Wikipedia call failed ")
-//    }.onFailure { msg ->
-//      expect(msg).toBeInstanceOf<MusicInfoMessage.MusicInfoExceptionMessage> { exMsg ->
-//        expect(exMsg.ex).toBeInstanceOf<NotWikipediaUrlException>()
-//      }
-//    }
-//  }
+  @Test
+  public fun testGetWikipediaSummaryFromMalformedUrl(): Unit = wiki {
+    getArticleSummary(BrainzUrl(id = "", resource = "http://ealva.com/"))
+      .onSuccess {
+        fail("Wikipedia call failed ")
+      }
+      .onFailure { msg ->
+        expect(msg).toBeInstanceOf<MusicInfoMessage.MusicInfoExceptionMessage> { exMsg ->
+          expect(exMsg.ex).toBeInstanceOf<NotWikipediaUrlException>()
+        }
+      }
+  }
 
   private fun wiki(block: suspend WikipediaService.() -> Unit) = coroutineRule.runBlockingTest {
     @Suppress("BlockingMethodInNonBlockingContext")

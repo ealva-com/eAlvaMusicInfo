@@ -28,7 +28,11 @@ import com.ealva.ealvabrainz.common.AlbumTitle
 import com.ealva.ealvabrainz.common.ArtistName
 import com.ealva.ealvabrainz.common.RecordingTitle
 import com.ealva.musicinfo.BuildConfig
+import com.ealva.musicinfo.service.common.AppName
+import com.ealva.musicinfo.service.common.AppVersion
+import com.ealva.musicinfo.service.common.ContactEmail
 import com.ealva.musicinfo.service.init.EalvaMusicInfo
+import com.ealva.musicinfo.service.wiki.WikipediaService
 import com.ealva.musicinfo.test.shared.MainCoroutineRule
 import com.ealva.musicinfo.test.shared.runBlockingTest
 import com.ealva.musicinfo.test.shared.toNotBeEmpty

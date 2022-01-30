@@ -82,8 +82,8 @@ android {
   }
 
   lint {
-    isWarningsAsErrors = false
-    isAbortOnError = false
+    warningsAsErrors = false
+    abortOnError = false
   }
 
   testOptions {

@@ -19,31 +19,28 @@ package com.ealva.musicinfo.service
 
 import com.ealva.brainzsvc.service.CredentialsProvider
 import com.ealva.brainzsvc.service.MusicBrainzService
+import com.ealva.ealvabrainz.brainz.data.ArtistMbid
+import com.ealva.ealvabrainz.common.ArtistName
 import com.ealva.musicinfo.BuildConfig
-import com.ealva.musicinfo.common.NotWikipediaUrlException
 import com.ealva.musicinfo.service.art.ArtFinder
 import com.ealva.musicinfo.service.art.BrainzArtFinder
 import com.ealva.musicinfo.service.art.CompositeArtFinder
 import com.ealva.musicinfo.service.art.LastFmArtFinder
 import com.ealva.musicinfo.service.art.SpotifyArtFinder
+import com.ealva.musicinfo.service.art.WikipediaArtFinder
 import com.ealva.musicinfo.service.common.AppName
 import com.ealva.musicinfo.service.common.AppVersion
 import com.ealva.musicinfo.service.common.ContactEmail
 import com.ealva.musicinfo.service.common.MusicInfoMessage
-import com.ealva.musicinfo.service.common.MusicInfoMessage.MusicInfoExceptionMessage
 import com.ealva.musicinfo.service.init.EalvaMusicInfo
 import com.ealva.musicinfo.service.lastfm.LastFmService
 import com.ealva.musicinfo.service.spotify.SpotifyService
 import com.ealva.musicinfo.service.wiki.WikipediaService
 import com.ealva.musicinfo.wiki.data.WikiSummary
-import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
-import com.ealva.ealvabrainz.brainz.data.Url as BrainzUrl
 
 public typealias MusicInfoResult<T> = Result<T, MusicInfoMessage>
 
@@ -63,13 +60,15 @@ public interface MusicInfoService {
    */
   public val artFinder: ArtFinder
 
-  /**
-   * Given a [wikiUrl], MusicBrainz [BrainzUrl], which is either of type "wikipedia" or "wikidata",
-   * get the WikiSummary for the article referenced by [wikiUrl]. If [wikiUrl] is neither
-   * wikipedia.org or wikidata.org, a [MusicInfoExceptionMessage] will be returned which contains a
-   * [NotWikipediaUrlException] exception
-   */
-  public suspend fun getArticleSummary(wikiUrl: BrainzUrl): MusicInfoResult<WikiSummary>
+  public val brainz: MusicBrainzService
+  public val wiki: WikipediaService
+  public val lastFm: LastFmService?
+  public val spotify: SpotifyService?
+
+  public suspend fun getArticleSummary(
+    artistName: ArtistName,
+    artistMbid: ArtistMbid?
+  ): MusicInfoResult<WikiSummary>
 
   public suspend fun <T : Any> exec(
     block: suspend (
@@ -91,8 +90,7 @@ public interface MusicInfoService {
       credentialsProvider: CredentialsProvider? = null,
       addLoggingInterceptor: Boolean = BuildConfig.DEBUG,
       okHttpClient: OkHttpClient = EalvaMusicInfo.okHttpClient,
-      serviceDispatcher: CoroutineDispatcher = Dispatchers.IO,
-      dispatcher: CoroutineDispatcher = Dispatchers.Main
+      serviceDispatcher: CoroutineDispatcher = Dispatchers.IO
     ): MusicInfoService = MusicInfoServiceImpl(
       MusicBrainzService(
         appName.value,
@@ -124,37 +122,38 @@ public interface MusicInfoService {
           spotifyClientSecret,
           serviceDispatcher
         )
-      else null,
-      dispatcher
+      else null
     )
 
     public operator fun invoke(
       brainz: MusicBrainzService,
       wiki: WikipediaService,
       lastFm: LastFmService? = null,
-      spotify: SpotifyService? = null,
-      dispatcher: CoroutineDispatcher = Dispatchers.Main
-    ): MusicInfoService = MusicInfoServiceImpl(brainz, wiki, lastFm, spotify, dispatcher)
+      spotify: SpotifyService? = null
+    ): MusicInfoService = MusicInfoServiceImpl(brainz, wiki, lastFm, spotify)
   }
 }
 
 private class MusicInfoServiceImpl(
-  private val brainz: MusicBrainzService,
-  private val wiki: WikipediaService,
-  private val lastFm: LastFmService?,
-  private val spotify: SpotifyService?,
-  private val dispatcher: CoroutineDispatcher
+  override val brainz: MusicBrainzService,
+  override val wiki: WikipediaService,
+  override val lastFm: LastFmService?,
+  override val spotify: SpotifyService?
 ) : MusicInfoService {
-  override suspend fun getArticleSummary(
-    wikiUrl: BrainzUrl
-  ): MusicInfoResult<WikiSummary> = exec { _, wiki, _, _ ->
-    wiki.getArticleSummary(wikiUrl)
-  }
+  private val wikiArtFinder = WikipediaArtFinder(wiki, brainz)
 
-  override val artFinder: ArtFinder = CompositeArtFinder(BrainzArtFinder(brainz)).apply {
+  override val artFinder: ArtFinder = CompositeArtFinder(
+    BrainzArtFinder(brainz),
+    wikiArtFinder
+  ).apply {
     if (lastFm != null) add(LastFmArtFinder(lastFm))
     if (spotify != null) add(SpotifyArtFinder(spotify))
   }
+
+  override suspend fun getArticleSummary(
+    artistName: ArtistName,
+    artistMbid: ArtistMbid?
+  ): MusicInfoResult<WikiSummary> = wikiArtFinder.getArticleSummary(artistName, artistMbid)
 
   override suspend fun <T : Any> exec(
     block: suspend (
@@ -163,11 +162,5 @@ private class MusicInfoServiceImpl(
       lastFm: LastFmService?,
       spotify: SpotifyService?,
     ) -> Result<T, MusicInfoMessage>
-  ): Result<T, MusicInfoMessage> = withContext(dispatcher) {
-    try {
-      block(brainz, wiki, lastFm, spotify)
-    } catch (e: Throwable) {
-      if (e is CancellationException) throw e else Err(MusicInfoExceptionMessage(e))
-    }
-  }
+  ): Result<T, MusicInfoMessage> = block(brainz, wiki, lastFm, spotify)
 }

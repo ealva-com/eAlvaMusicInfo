@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021  Eric A. Snell
+ * Copyright (c) 2022  Eric A. Snell
  *
  * This file is part of eAlvaMusicInfo
  *
@@ -15,25 +15,17 @@
  * eAlvaMusicInfo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-object AppCoordinates {
-  const val APP_ID = "com.ealva.musicinfoapp"
+package com.ealva.musicinfo.service.common
 
-  const val APP_VERSION_NAME = "1.0.0"
-  const val APP_VERSION_CODE = 1
-}
+/**
+ * Base class for MusicInfo exceptions and also used to map exceptions from lower layers
+ */
+public open class MusicInfoException internal constructor(
+  message: String,
+  cause: Throwable?
+) : RuntimeException(message, cause)
 
-private const val IS_SNAPSHOT = false
-
-object MusicInfoCoordinates {
-  // All parts of versioning can be up to 2 digits: 0-99
-  private const val MAJOR = 0
-  private const val MINOR = 2
-  private const val PATCH = 11
-  private const val BUILD = 0
-
-  val VERSION = "$MAJOR.$MINOR.$PATCH-${buildPart(IS_SNAPSHOT, BUILD)}"
-}
-
-@Suppress("SameParameterValue")
-private fun buildPart(isSnapshot: Boolean, build: Int): String =
-  if (isSnapshot) "SNAPSHOT" else build.toString()
+public class MusicInfoNotFoundException(
+  message: String,
+  cause: Throwable?
+) : MusicInfoException(message, cause)

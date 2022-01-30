@@ -36,6 +36,7 @@ import com.ealva.musicinfo.service.common.ContactEmail
 import com.ealva.musicinfo.service.init.EalvaMusicInfo
 import com.ealva.musicinfo.service.lastfm.LastFmService
 import com.ealva.musicinfo.service.spotify.SpotifyService
+import com.ealva.musicinfo.service.wiki.WikipediaService
 import com.ealva.musicinfo.test.shared.MainCoroutineRule
 import com.ealva.musicinfo.test.shared.runBlockingTest
 import com.ealva.musicinfo.test.shared.toHaveAny
@@ -70,17 +71,26 @@ public class CompositeFinderIntegrationTest {
   public fun setup() {
     appCtx = ApplicationProvider.getApplicationContext()
     runBlocking {
+      val wiki = WikipediaService(
+        appName = AppName(BuildConfig.MUSICINFO_APP_NAME),
+        appVersion = AppVersion(BuildConfig.MUSICINFO_APP_VERSION),
+        contactEmail = ContactEmail(BuildConfig.MUSICINFO_CONTACT_EMAIL),
+        okHttpClient = EalvaMusicInfo.okHttpClient,
+        dispatcher = coroutineRule.testDispatcher
+      )
+
+      val brainz = MusicBrainzService(
+        BuildConfig.MUSICINFO_APP_NAME,
+        BuildConfig.MUSICINFO_APP_VERSION,
+        BuildConfig.MUSICINFO_CONTACT_EMAIL,
+        true,
+        clientForBuilder = EalvaMusicInfo.okHttpClient,
+        dispatcher = coroutineRule.testDispatcher
+      )
+
       finder = CompositeArtFinder(
-        BrainzArtFinder(
-          MusicBrainzService(
-            BuildConfig.MUSICINFO_APP_NAME,
-            BuildConfig.MUSICINFO_APP_VERSION,
-            BuildConfig.MUSICINFO_CONTACT_EMAIL,
-            true,
-            clientForBuilder = EalvaMusicInfo.okHttpClient,
-            dispatcher = coroutineRule.testDispatcher
-          )
-        ),
+        WikipediaArtFinder(wiki, brainz),
+        BrainzArtFinder(brainz),
         LastFmArtFinder(
           LastFmService(
             AppName(BuildConfig.MUSICINFO_APP_NAME),
@@ -131,7 +141,7 @@ public class CompositeFinderIntegrationTest {
     val artistMbid = ArtistMbid("b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d")
     findArtistArt(THE_BEATLES, artistMbid,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles mbid" }
-      expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_lastfm_square_logo }
+      expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_wikipedia_logo }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_spotify_green_logo }
     }
   }
@@ -140,7 +150,14 @@ public class CompositeFinderIntegrationTest {
   public fun testTheBeatlesArt(): Unit = find {
     findArtistArt(THE_BEATLES,).toList().let { list ->
       expect(list).toNotBeEmpty { "No artwork for The Beatles" }
-      expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_lastfm_square_logo }
+      expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_spotify_green_logo }
+    }
+  }
+
+  @Test
+  public fun testChicagoArt(): Unit = find {
+    findArtistArt(ArtistName("Chicago")).toList().let { list ->
+      expect(list).toNotBeEmpty { "No artwork for Chicago" }
       expect(list).toHaveAny { it.sourceLogoDrawableRes == R.drawable.ic_spotify_green_logo }
     }
   }

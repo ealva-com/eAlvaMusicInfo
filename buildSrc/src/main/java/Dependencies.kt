@@ -22,7 +22,7 @@ object SdkVersion {
 }
 
 object PluginsVersion {
-  const val AGP = "7.0.4"
+  const val AGP = "7.1.0-rc01"
   const val DETEKT = "1.19.0"
   const val DOKKA = "1.6.10"
   const val KOTLIN = "1.6.10"
@@ -86,7 +86,7 @@ object Libs {
 //  }
 
   object EAlvaBrainz {
-    private const val VERSION = "0.10.1-0"
+    private const val VERSION = "0.10.2-0"
     const val BRAINZ = "com.ealva:ealvabrainz:$VERSION"
     const val BRAINZ_SERVICE = "com.ealva:ealvabrainz-service:$VERSION"
   }

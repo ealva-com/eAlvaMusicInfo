@@ -49,6 +49,6 @@ public interface Wikipedia {
    *
    * [Nirvana example](https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&props=sitelinks/urls&format=json&ids=Q11649)
    */
-  @GET("https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&props=sitelinks/urls&format=json&ids={ids}")
+  @GET("https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&props=sitelinks/urls&format=json")
   public suspend fun getSiteLinks(@Query("ids") id: String): Response<WikiDataEntities>
 }

@@ -65,6 +65,10 @@ public sealed class MusicInfoMessage {
   public class MusicInfoErrorMessage(private val msg: String) : MusicInfoMessage() {
     override fun toString(): String = msg
   }
+
+  public class MusicInfoNotFoundMessage(private val msg: String) : MusicInfoMessage() {
+    override fun toString(): String = msg
+  }
 }
 
 @Suppress("unused")

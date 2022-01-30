@@ -31,7 +31,6 @@ import com.ealva.ealvalog.e
 import com.ealva.ealvalog.invoke
 import com.ealva.musicinfo.R
 import com.ealva.musicinfo.lastfm.data.Album
-import com.ealva.musicinfo.lastfm.data.Artist
 import com.ealva.musicinfo.lastfm.data.Image
 import com.ealva.musicinfo.lastfm.data.Track
 import com.ealva.musicinfo.lastfm.data.theSize
@@ -49,6 +48,7 @@ import com.github.michaelbull.result.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.onEmpty
 
 private val LOG by libLogger(LastFmArtFinder::class)
@@ -97,34 +97,42 @@ public class LastFmArtFinder(private val lastfm: LastFmService) : ArtFinder {
       .map { image -> image.toRemoteImage() }
       .asFlow()
 
+  /**
+   * Last.fm stopped providing artist images via their Rest API
+   */
   override suspend fun findArtistArt(
     artist: ArtistName,
     artistMbid: ArtistMbid?
-  ): Flow<RemoteImage> = when {
-    artistMbid != null -> doFindArtistArt(artistMbid).onEmpty {
-      if (artist.value.isNotBlank()) doFindArtistArt(artist)
-    }
-    else -> doFindArtistArt(artist)
-  }
+  ): Flow<RemoteImage> = emptyFlow()
 
-  private suspend fun doFindArtistArt(
-    artist: ArtistName
-  ): Flow<RemoteImage> = getArtist("$artist") {
-    getArtistInfo(artist)
-  }
-
-  private suspend fun doFindArtistArt(
-    artistMbid: ArtistMbid,
-  ): Flow<RemoteImage> = getArtist("$artistMbid") {
-    getArtistInfo(artistMbid)
-  }
-
-  private suspend fun getArtist(
-    data: String,
-    getArtist: suspend LastFmService.() -> LastFmResult<Artist>
-  ): Flow<RemoteImage> = lastfm.getArtist()
-    .andThen { if (it.imageList.isEmpty()) makeErr("No images for $data") else Ok(it.imageList) }
-    .imageListToFlow()
+  //  override suspend fun findArtistArt(
+//    artist: ArtistName,
+//    artistMbid: ArtistMbid?
+//  ): Flow<RemoteImage> = when {
+//    artistMbid != null -> doFindArtistArt(artistMbid).onEmpty {
+//      if (artist.value.isNotBlank()) doFindArtistArt(artist)
+//    }
+//    else -> doFindArtistArt(artist)
+//  }
+//
+//  private suspend fun doFindArtistArt(
+//    artist: ArtistName
+//  ): Flow<RemoteImage> = getArtist("$artist") {
+//    getArtistInfo(artist)
+//  }
+//
+//  private suspend fun doFindArtistArt(
+//    artistMbid: ArtistMbid,
+//  ): Flow<RemoteImage> = getArtist("$artistMbid") {
+//    getArtistInfo(artistMbid)
+//  }
+//
+//  private suspend fun getArtist(
+//    data: String,
+//    getArtist: suspend LastFmService.() -> LastFmResult<Artist>
+//  ): Flow<RemoteImage> = lastfm.getArtist()
+//    .andThen { if (it.imageList.isEmpty()) makeErr("No images for $data") else Ok(it.imageList) }
+//    .imageListToFlow()
 
   override suspend fun findTrackArt(
     artist: ArtistName,

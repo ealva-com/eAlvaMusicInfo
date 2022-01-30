@@ -126,7 +126,7 @@ public interface WikipediaService {
       appVersion: AppVersion,
       contactEmail: ContactEmail,
       okHttpClient: OkHttpClient = EalvaMusicInfo.okHttpClient,
-      coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+      dispatcher: CoroutineDispatcher = Dispatchers.IO,
     ): WikipediaService = WikipediaServiceImpl(
       Retrofit.Builder()
         .client(
@@ -143,7 +143,7 @@ public interface WikipediaService {
         .addConverterFactory(MoshiConverterFactory.create(theWikiMoshi))
         .build()
         .create(Wikipedia::class.java),
-      coroutineDispatcher
+      dispatcher
     )
   }
 }
