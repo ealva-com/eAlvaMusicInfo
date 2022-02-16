@@ -20,6 +20,7 @@ package com.ealva.musicinfo.service.art
 import android.content.Intent
 import android.net.Uri
 import android.util.Size
+import androidx.core.net.toUri
 import com.ealva.ealvabrainz.brainz.data.ArtistMbid
 import com.ealva.ealvabrainz.brainz.data.ReleaseGroupMbid
 import com.ealva.ealvabrainz.brainz.data.ReleaseMbid
@@ -52,7 +53,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.onEmpty
 
 private val LOG by libLogger(LastFmArtFinder::class)
-private val LASTFM_INTENT = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.last.fm/"))
+private val LASTFM_INTENT = Intent(Intent.ACTION_VIEW, "https://www.last.fm/".toUri())
 
 public class LastFmArtFinder(private val lastfm: LastFmService) : ArtFinder {
 

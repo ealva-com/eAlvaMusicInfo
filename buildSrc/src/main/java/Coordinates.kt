@@ -28,7 +28,7 @@ object MusicInfoCoordinates {
   // All parts of versioning can be up to 2 digits: 0-99
   private const val MAJOR = 0
   private const val MINOR = 2
-  private const val PATCH = 11
+  private const val PATCH = 12
   private const val BUILD = 0
 
   val VERSION = "$MAJOR.$MINOR.$PATCH-${buildPart(IS_SNAPSHOT, BUILD)}"

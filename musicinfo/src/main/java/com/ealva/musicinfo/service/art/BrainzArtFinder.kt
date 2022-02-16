@@ -18,8 +18,8 @@
 package com.ealva.musicinfo.service.art
 
 import android.content.Intent
-import android.net.Uri
 import android.util.Size
+import androidx.core.net.toUri
 import com.ealva.brainzsvc.service.BrainzResult
 import com.ealva.brainzsvc.service.CoverArtImageInfo
 import com.ealva.brainzsvc.service.MusicBrainzService
@@ -60,7 +60,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEmpty
 
 private val LOG by libLogger(BrainzArtFinder::class)
-private val BRAINZ_INTENT = Intent(Intent.ACTION_VIEW, Uri.parse("https://musicbrainz.org/"))
+private val BRAINZ_INTENT = Intent(Intent.ACTION_VIEW, "https://musicbrainz.org/".toUri())
 
 public class BrainzArtFinder(private val brainz: MusicBrainzService) : ArtFinder {
 

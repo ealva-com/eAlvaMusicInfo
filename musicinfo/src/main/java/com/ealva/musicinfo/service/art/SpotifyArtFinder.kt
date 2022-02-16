@@ -18,8 +18,8 @@
 package com.ealva.musicinfo.service.art
 
 import android.content.Intent
-import android.net.Uri
 import android.util.Size
+import androidx.core.net.toUri
 import com.adamratzman.spotify.models.SpotifyImage
 import com.ealva.ealvabrainz.brainz.data.ArtistMbid
 import com.ealva.ealvabrainz.brainz.data.ReleaseGroupMbid
@@ -44,7 +44,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 
 private val LOG by libLogger(SpotifyArtFinder::class)
-private val SPOTIFY_INTENT = Intent(Intent.ACTION_VIEW, Uri.parse("https://spotify.com/"))
+private val SPOTIFY_INTENT = Intent(Intent.ACTION_VIEW, "https://spotify.com/".toUri())
 
 private const val MAX_SMALL_IMAGE_WIDTH = 250
 private const val MAX_MEDIUM_IMAGE_WIDTH = 500

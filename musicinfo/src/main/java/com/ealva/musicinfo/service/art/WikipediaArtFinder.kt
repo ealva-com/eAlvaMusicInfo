@@ -18,8 +18,8 @@
 package com.ealva.musicinfo.service.art
 
 import android.content.Intent
-import android.net.Uri
 import android.util.Size
+import androidx.core.net.toUri
 import com.ealva.brainzsvc.service.MusicBrainzService
 import com.ealva.ealvabrainz.brainz.data.Artist
 import com.ealva.ealvabrainz.brainz.data.ArtistMbid
@@ -56,7 +56,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 
 private val LOG by libLogger(WikipediaArtFinder::class)
-private val BRAINZ_INTENT = Intent(Intent.ACTION_VIEW, Uri.parse("https://musicbrainz.org/"))
+private val BRAINZ_INTENT = Intent(Intent.ACTION_VIEW, "https://musicbrainz.org/".toUri())
 
 public interface WikipediaArtFinder : ArtFinder {
   public suspend fun getArticleSummary(
