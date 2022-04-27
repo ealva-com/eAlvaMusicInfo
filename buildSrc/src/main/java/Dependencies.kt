@@ -22,11 +22,11 @@ object SdkVersion {
 }
 
 object PluginsVersion {
-  const val AGP = "7.1.1"
-  const val DETEKT = "1.19.0"
+  const val AGP = "7.1.3"
+  const val DETEKT = "1.20.0"
   const val DOKKA = "1.6.10"
-  const val KOTLIN = "1.6.10"
-  const val VANNIKTECH_PUBLISH = "0.18.0"
+  const val KOTLIN = "1.6.21"
+  const val VANNIKTECH_PUBLISH = "0.19.0"
   const val VERSIONS = "0.42.0"
 }
 
@@ -45,8 +45,8 @@ object Libs {
 
     object Compose {
       @Suppress("MemberVisibilityCanBePrivate")
-      const val COMPILER_VERSION = "1.1.0"
-      private const val VERSION = "1.1.0"
+      const val COMPILER_VERSION = "1.1.1"
+      private const val VERSION = "1.1.1"
 
       //const val FOUNDATION = "androidx.compose.foundation:foundation:$VERSION"
       const val UI = "androidx.compose.ui:ui:$VERSION"
@@ -111,7 +111,7 @@ object Libs {
 //  }
 
   object Koin {
-    private const val VERSION = "3.1.5"
+    private const val VERSION = "3.1.6"
     const val CORE = "io.insert-koin:koin-core:$VERSION"
     const val ANDROID = "io.insert-koin:koin-android:$VERSION"
 //    const val ANDROID_EXT = "io.insert-koin:koin-android-ext:3.0.2"
@@ -124,7 +124,7 @@ object Libs {
 //    const val KGP = "org.jetbrains.kotlin:kotlin-gradle-plugin:$VERSION"
 
     object Coroutines {
-      private const val VERSION = "1.6.0"
+      private const val VERSION = "1.6.1"
       const val CORE = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$VERSION"
       const val ANDROID = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$VERSION"
       const val TEST = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$VERSION"
@@ -137,12 +137,12 @@ object Libs {
   }
 
   object Mockito {
-    const val INLINE = "org.mockito:mockito-inline:4.3.1"
+    const val INLINE = "org.mockito:mockito-inline:4.5.1"
     const val KOTLIN = "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
   }
 
   object Result {
-    private const val VERSION = "1.1.14"
+    private const val VERSION = "1.1.16"
     const val RESULT = "com.michael-bull.kotlin-result:kotlin-result:$VERSION"
     const val COROUTINES = "com.michael-bull.kotlin-result:kotlin-result-coroutines:$VERSION"
   }
@@ -152,7 +152,7 @@ object Libs {
   }
 
   object Spotify {
-    const val API = "com.adamratzman:spotify-api-kotlin-core:3.8.5"
+    const val API = "com.adamratzman:spotify-api-kotlin-core:3.8.6"
   }
 
   object Square {

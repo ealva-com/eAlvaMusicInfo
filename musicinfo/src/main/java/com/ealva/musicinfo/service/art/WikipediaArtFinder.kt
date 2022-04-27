@@ -46,11 +46,11 @@ import com.ealva.musicinfo.wiki.data.isNullObject
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.map
-import com.github.michaelbull.result.mapEither
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.toErrorIf
 import com.github.michaelbull.result.unwrap
+import com.github.michaelbull.result.unwrapError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
@@ -103,7 +103,8 @@ private class WikipediaArtFinderImpl(
     .map { list -> list[0] }
     .map { artist -> artist.mbid }
     .map { artistMbid -> artistMbid.getArtistArticleSummary() }
-    .mapEither({ it.unwrap() }, { it })
+    .toErrorIf({ it is Err }) { it.unwrapError() }
+    .map { it.unwrap() }
 
 
   override suspend fun findAlbumArt(
